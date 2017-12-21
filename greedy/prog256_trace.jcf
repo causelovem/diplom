@@ -1,0 +1,9 @@
+# @ job_type = bluegene
+# @ class = n256_m5
+# @ output = $(jobid).out
+# @ error = $(jobid).err
+# @ wall_clock_limit = 00:5:00
+# @ bg_size = 256
+# @ queue
+
+/bgsys/drivers/ppcfloor/bin/mpirun -np 256 /gpfs/data/edu-cmc-sqi16y3-004/kursach/bin/prog_test '/gpfs/data/edu-cmc-sqi16y3-004/kursach/trace_folder' mas1 mas2 mas3
