@@ -1,0 +1,22 @@
+# README file for libtopomap
+
+
+INSTALLATION AND RUNNING:
+-------------------------
+** please refer to http://www.unixer.de/research/mpitopo/libtopomap/ for
+   details about installation and usage!
+
+AUTHORS:
+--------
+Torsten Hoefler <htor@unixer.de>
+
+CITATION:
+---------
+Any published work which uses this software should include the following
+citation:
+----------------------------------------------------------------------
+T. Hoefler and M. Snir: Generic Topology Mapping Strategies for
+Large-scale Parallel Architectures. Proceedings of the 2011 ACM
+International Conference on Supercomputing (ICS'11), presented in
+Tucson, AZ, pages 75--85, ACM, ISBN: 978-1-4503-0102-2, Jun. 2011
+

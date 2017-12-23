@@ -1,0 +1,41 @@
+--- metis-4.0/Lib/proto.h	1998-11-30 10:26:50.000000000 -0600
++++ metis-4.0-htor/Lib/proto.h	2010-12-27 16:40:15.000000000 -0600
+@@ -145,9 +145,16 @@
+ void RandomBisection(CtrlType *, GraphType *, int *, float);
+ 
+ /* kmetis.c */
++#ifdef __cplusplus
++extern "C" {
++#endif
+ void METIS_PartGraphKway(int *, idxtype *, idxtype *, idxtype *, idxtype *, int *, int *, int *, int *, int *, idxtype *); 
+ void METIS_WPartGraphKway(int *, idxtype *, idxtype *, idxtype *, idxtype *, int *, int *, int *, float *, int *, int *, idxtype *); 
+ int MlevelKWayPartitioning(CtrlType *, GraphType *, int, idxtype *, float *, float);
++#ifdef __cplusplus
++}
++#endif
++
+ 
+ /* kvmetis.c */
+ void METIS_PartGraphVKway(int *, idxtype *, idxtype *, idxtype *, idxtype *, int *, int *, int *, int *, int *, idxtype *);
+@@ -356,12 +363,18 @@
+ void METIS_EdgeComputeSeparator(int *, idxtype *, idxtype *, idxtype *, idxtype *, int *, int *, idxtype *); 
+ 
+ /* pmetis.c */
++#ifdef __cplusplus
++extern "C" {
++#endif
+ void METIS_PartGraphRecursive(int *, idxtype *, idxtype *, idxtype *, idxtype *, int *, int *, int *, int *, int *, idxtype *); 
+ void METIS_WPartGraphRecursive(int *, idxtype *, idxtype *, idxtype *, idxtype *, int *, int *, int *, float *, int *, int *, idxtype *); 
+ int MlevelRecursiveBisection(CtrlType *, GraphType *, int, idxtype *, float *, float, int);
+ void MlevelEdgeBisection(CtrlType *, GraphType *, int *, float);
+ void SplitGraphPart(CtrlType *, GraphType *, GraphType *, GraphType *);
+ void SetUpSplitGraph(GraphType *, GraphType *, int, int);
++#ifdef __cplusplus
++}
++#endif
+ 
+ /* pqueue.c */
+ void PQueueInit(CtrlType *ctrl, PQueueType *, int, int);
+ 
+ 
+ 

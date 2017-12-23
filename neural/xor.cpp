@@ -16,10 +16,38 @@ int main(int argc, char** argv)
     auto net = construct_mlp();
 
     std::vector<label_t> train_labels {0, 1, 1, 0};
-    std::vector<vec_t> train_numbers{ {0, 0}, {0, 1}, {1, 0}, {1, 1} };
+    // std::vector<vec_t> train_numbers{ {0, 0}, {0, 1}, {1, 0}, {1, 1} };
+
+    std::vector<vec_t> train_numbers;
+
+    vec_t tmp;
+    tmp.push_back(0);
+    tmp.push_back(0);
+
+    train_numbers.push_back(tmp);
+    tmp.clear();
+
+    tmp.push_back(0);
+    tmp.push_back(1);
+
+    train_numbers.push_back(tmp);
+    tmp.clear();
+
+    tmp.push_back(1);
+    tmp.push_back(0);
+
+    train_numbers.push_back(tmp);
+    tmp.clear();
+
+    tmp.push_back(1);
+    tmp.push_back(1);
+
+    train_numbers.push_back(tmp);
+    tmp.clear();
+
 
     adagrad optimizer; // use gradient_descent?
-    net.train<mse>(optimizer, train_numbers, train_labels, 4, 1000); // batch size 4, 1000 epochs
+    net.train<mse>(optimizer, train_numbers, train_labels, 4, 100); // batch size 4, 1000 epochs
 
     for (auto& tn : train_numbers)
     {
