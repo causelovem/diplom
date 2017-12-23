@@ -1,27 +1,23 @@
 #include "tiny_dnn/tiny_dnn.h"
 #include <fstream>
+#include <cmath>
 
 using namespace std;
 using namespace tiny_dnn;
 using namespace tiny_dnn::activation;
 
-// network<sequential> construct_mlp() 
-// {
-//     //auto mynet = make_mlp<tan_h>({ 2, 8, 2 });
-//     auto mynet = make_mlp<relu>({ 2, 8, 2 });
-//     assert(mynet.in_data_size() == 2);
-//     assert(mynet.out_data_size() == 2);
-//     return mynet;
-// }
+#define EPS 0.0001
+
 
 int main(int argc, char** argv)
 {
-    /*<numOfFiles> <matrixFiles> <mappingFiles>*/
-    long unsigned int matrixDim = 8;
+    /*<numOfFiles> <dim> <matrixFiles> <mappingFiles>*/
     int numOfFiles = atoi(argv[1]);
+    long unsigned int matrixDim = atoi(argv[2]);
+    int lenMapStr = 4;
 
     std::vector<vec_t> inData;
-    for (int k = 2; k < numOfFiles + 2; k++)
+    for (int k = 3; k < numOfFiles + 3; k++)
     {
         ifstream matrixFile(argv[k]);
         vec_t matrixVec;
@@ -40,21 +36,26 @@ int main(int argc, char** argv)
         matrixFile.close();
     }
 
-    cout << inData.size() << endl;
-
     std::vector<vec_t> desData;
-    for (int k = numOfFiles + 2; k < argc; k++)
+    for (int k = numOfFiles + 3; k < argc; k++)
     {
         ifstream mappingFile(argv[k]);
         vec_t mappingVec;
 
-        int tmp = 0;
+        double tmp = 0;
         for (int i = 0; i < matrixDim; i++)
-            for (int j = 0; j < 4; j++)
+        {
+            for (int j = 0; j < lenMapStr; j++)
             {
                 mappingFile >> tmp;
-                mappingVec.push_back(tmp);
+                if (tmp != 0)
+                    mappingVec.push_back(1 / tmp);
+                else
+                    mappingVec.push_back(tmp);
             }
+
+            // mappingFile >> tmp;
+        }
 
         desData.push_back(mappingVec);
         mappingVec.clear();
@@ -62,59 +63,75 @@ int main(int argc, char** argv)
         mappingFile.close();
     }
 
-    cout << desData.size() << endl;
+    int max = 0;
+    if (matrixDim <= 8)
+        max = 2;
+    else
+    if ((matrixDim <= 16) || (matrixDim <= 32) || (matrixDim <= 64))
+        max = 4;
+    else
+    if ((matrixDim <= 128) || (matrixDim <= 256) || (matrixDim <= 512))
+        max = 8;
+    else
+    if ((matrixDim <= 1024) || (matrixDim <= 2048))
+        max = 16;
 
-    network<sequential> net = make_mlp<sigmoid>({matrixDim * matrixDim, matrixDim, matrixDim * 4});
-    // auto mynet = make_mlp<relu>({ 2, 8, 2 });
-    cout << "!!!" << endl;
-    // return 0;
-    // auto net = make_mlp<sigmoid>({512 * 512, 512, 512 * 4});
-    // auto net = construct_mlp();
-    // std::vector<label_t> train_labels {0, 1, 1, 0};
-    // std::vector<vec_t> train_numbers{ {0, 0}, {0, 1}, {1, 0}, {1, 1} };
+    // network<sequential> net = make_mlp<sigmoid>({matrixDim * matrixDim, matrixDim * matrixDim, matrixDim * 4});
+    network<sequential> net;
+    net << fully_connected_layer(matrixDim * matrixDim, matrixDim * 8, true) << sigmoid()
+        // << fully_connected_layer(matrixDim * 2, matrixDim * 2, true) << sigmoid()
+        // << fully_connected_layer(matrixDim * 2, matrixDim * 2, true) << sigmoid()
+        << fully_connected_layer(matrixDim * 8, matrixDim * lenMapStr, true) << sigmoid();
 
-    // cout << train_labels << endl;
-    // cout << train_numbers << endl;
 
     int epo = 0;
     timer t;
     adagrad optimizer; // use gradient_descent?
-    net.fit<mse>(optimizer, inData, desData, 4, 200,
+    net.fit<mse>(optimizer, inData, desData, 5, 500,
     // called for each mini-batch
          [&](){
-           // cout << t.elapsed() << endl;
-           // t.restart();
-           // cout << "???" << endl;
+           cout << t.elapsed() << endl;
+           t.restart();
          },
          // called for each epoch
          [&](){
-           // result res = net.test(inData, desData);
-           // cout << res.num_success << "/" << res.num_total << endl;
            double loss = net.get_loss<mse>(inData, desData);
            cout << "Epoch = " << epo << endl;
            epo++;
            cout << "Loss = " << loss << endl << endl;
-           // ofs << nn;
-         }); // batch size 4, 1000 epochs
+         });
 
-    cout << "!!!" << endl;
-    int k = numOfFiles + 2;
+    int k = numOfFiles + 3;
     for (auto& tn : inData)
     {
-        // auto res_label = net.predict_label(tn);
         cout << k << endl;
         auto res = net.predict(tn);
-        cout << res[0] << endl;
 
-        ofstream predictionFile(string("../prediction/") + string(argv[k]) + string("Pred"));
+        ofstream predictionFile(string("./prediction/") + string(argv[k]).substr(10, string(argv[k]).size() - 10) + string("Pred"));
 
         for (int i = 0; i < matrixDim; i++)
-            for (int j = 0; j < 4; j++)
-                predictionFile << res[i * 4 + j] << " ";
+        {
+            for (int j = 0; j < lenMapStr; j++)
+            {
+                cout << res[i * lenMapStr + j] << " ";
+                if (fabs(res[i * lenMapStr + j] - 0) > EPS)
+                {
+                    double tmp = 1 / res[i * lenMapStr + j];
+                    // if (fabs(tmp - (max - 1)) < EPS)
+                    if (roundf(tmp) > (max - 1))
+                        predictionFile << 0 << " ";
+                    else
+                        predictionFile << roundf(tmp) << " ";
+                }
+                else
+                    predictionFile << 0 << " ";
+            }
+            // predictionFile << 0 << " " << endl;
+            cout << endl;
             predictionFile << endl;
+        }
 
         k++;
-        // std::cout << "In: (" << tn[0] << "," << tn[1] << ") Prediction: " << res_label << std::endl;
 
         predictionFile.close();
     }

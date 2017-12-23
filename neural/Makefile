@@ -11,6 +11,15 @@ all: $(COM_MATRIX_GEN) $(GREEDY_FILE) $(BUILD_MATRIX) $(BUILD_RAND_SEND) $(CHECK
  
 neural: $(NEURAL_MAPPING)
 
+data:
+	rm -rf matrix/*
+	rm -rf mapping/*
+	python3 ./src/makeData.py matrix mapping 10 16
+
+train: 
+	rm -rf prediction/*
+	./bin/neuralMapping 10 16 ./matrix/* ./mapping/*
+
 map:
 	./bin/greedy matrix512 512
 
