@@ -4,21 +4,30 @@ CHECK_PROG = src/prog_test
 BUILD_MATRIX = src/build_matrix
 BUILD_RAND_SEND = src/build_rand_send
 NEURAL_MAPPING = src/neuralMapping
+NEURAL_MAPPING_PREDICT = src/neuralMappingPredict
 CXX = g++
 CXXFLAGS = -g -O0 -Wall
 
 all: $(COM_MATRIX_GEN) $(GREEDY_FILE) $(BUILD_MATRIX) $(BUILD_RAND_SEND) $(CHECK_PROG)
  
-neural: $(NEURAL_MAPPING)
+neuralTrain: $(NEURAL_MAPPING)
+
+neuralPredict: $(NEURAL_MAPPING_PREDICT)
 
 data:
 	rm -rf matrix/*
 	rm -rf mapping/*
-	python3 ./src/makeData.py matrix mapping 10 16
+	rm -rf pred/matrix/*
+	rm -rf pred/test/*
+	python3 ./src/makeData.py matrix mapping 20 16 pred 3
 
 train: 
 	rm -rf prediction/*
-	./bin/neuralMapping 10 16 ./matrix/* ./mapping/*
+	time ./bin/neuralMapping 20 16 ./matrix/* ./mapping/*
+
+predict: 
+	rm -rf pred/prediction/*
+	time ./bin/neuralMappingPredict 3 16 ./pred/matrix/*
 
 map:
 	./bin/greedy matrix512 512
@@ -44,6 +53,9 @@ check:
 
 $(NEURAL_MAPPING): $(NEURAL_MAPPING).cpp
 	g++ -O0 -DLOG -DNO_MPI -std=c++14 -fopenmp -I${PWD}/tiny-dnn src/neuralMapping.cpp -o bin/neuralMapping
+
+$(NEURAL_MAPPING_PREDICT): $(NEURAL_MAPPING_PREDICT).cpp
+	g++ -O0 -DLOG -DNO_MPI -std=c++14 -fopenmp -I${PWD}/tiny-dnn src/neuralMappingPredict.cpp -o bin/neuralMappingPredict
 
 $(GREEDY_FILE): $(GREEDY_FILE).cpp
 	$(CXX) $(CXXFLAGS) $(GREEDY_FILE).cpp -o bin/greedy

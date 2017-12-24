@@ -27,7 +27,11 @@ int main(int argc, char** argv)
             for (int j = 0; j < matrixDim; j++)
             {
                 matrixFile >> tmp;
+                // if (tmp != 0)
+                //     matrixVec.push_back(1 / tmp);
+                // else
                 matrixVec.push_back(tmp);
+                    
             }
 
         inData.push_back(matrixVec);
@@ -78,42 +82,57 @@ int main(int argc, char** argv)
 
     // network<sequential> net = make_mlp<sigmoid>({matrixDim * matrixDim, matrixDim * matrixDim, matrixDim * 4});
     network<sequential> net;
-    net << fully_connected_layer(matrixDim * matrixDim, matrixDim * 8, true) << sigmoid()
-        // << fully_connected_layer(matrixDim * 2, matrixDim * 2, true) << sigmoid()
-        // << fully_connected_layer(matrixDim * 2, matrixDim * 2, true) << sigmoid()
-        << fully_connected_layer(matrixDim * 8, matrixDim * lenMapStr, true) << sigmoid();
+    // net << fully_connected_layer(matrixDim * matrixDim, matrixDim * matrixDim / 2) << sigmoid()
+        // << fully_connected_layer(matrixDim * matrixDim / 2, matrixDim * 2) << sigmoid()
+        // << fully_connected_layer(matrixDim * 2, matrixDim * lenMapStr) << sigmoid();
+
+
+    net << fully_connected_layer(matrixDim * matrixDim, matrixDim * matrixDim) << sigmoid()
+        << fully_connected_layer(matrixDim * matrixDim, matrixDim * lenMapStr) << sigmoid();
 
 
     int epo = 0;
     timer t;
-    adagrad optimizer; // use gradient_descent?
-    net.fit<mse>(optimizer, inData, desData, 5, 500,
+
+    // adagrad optimizer;
+    adam optimizer;
+    // adamax optimizer;
+
+    // net.fit<cross_entropy>(optimizer, inData, desData, 3, 500,
+
+    net.fit<mse>(optimizer, inData, desData, 3, 500,
     // called for each mini-batch
          [&](){
-           cout << t.elapsed() << endl;
-           t.restart();
+           // cout << t.elapsed() << endl;
+           // t.restart();
          },
          // called for each epoch
          [&](){
+           // double loss = net.get_loss<cross_entropy>(inData, desData);
+
            double loss = net.get_loss<mse>(inData, desData);
-           cout << "Epoch = " << epo << endl;
-           epo++;
+           cout << "Epoch = " << epo++ << endl;
            cout << "Loss = " << loss << endl << endl;
          });
+
+    net.save("nets/net1");
+
+    // net.save("nets/net2");
 
     int k = numOfFiles + 3;
     for (auto& tn : inData)
     {
-        cout << k << endl;
+        // cout << k << endl;
         auto res = net.predict(tn);
 
-        ofstream predictionFile(string("./prediction/") + string(argv[k]).substr(10, string(argv[k]).size() - 10) + string("Pred"));
+        int namePos = string(argv[k]).find_last_of("/\\");
+        ofstream predictionFile(string("./prediction/") + string(argv[k]).substr(namePos + 1) + string("Pred"));
 
         for (int i = 0; i < matrixDim; i++)
         {
             for (int j = 0; j < lenMapStr; j++)
             {
-                cout << res[i * lenMapStr + j] << " ";
+                // cout << res[i * lenMapStr + j] << " ";
                 if (fabs(res[i * lenMapStr + j] - 0) > EPS)
                 {
                     double tmp = 1 / res[i * lenMapStr + j];
@@ -127,7 +146,7 @@ int main(int argc, char** argv)
                     predictionFile << 0 << " ";
             }
             // predictionFile << 0 << " " << endl;
-            cout << endl;
+            // cout << endl;
             predictionFile << endl;
         }
 

@@ -10,16 +10,18 @@ def command(com):
     return result[:-1]
 
 
-if (len(sys.argv) != 5):
+if (len(sys.argv) != 7):
     err = "Unexpected quantity of arguments, check your comand string:\n"
-    err += "<matrixDir> <mappingDir> <numOfFiles> <matrixDim>"
+    err += "<matrixDir> <mappingDir> <numOfFiles> <matrixDim> <predDir> <numOfPred>"
     print(err)
     sys.exit(1)
 
-num = int(sys.argv[3])
+numOfTest = int(sys.argv[3])
 matrixDim = int(sys.argv[4])
 
-for i in range(num):
+numOfPred = int(sys.argv[6])
+
+for i in range(numOfTest):
     com = './bin/com_matrix_gen {}{}{} {}'.format(
         sys.argv[1], "/matrix", i + 1, matrixDim)
 
@@ -28,6 +30,21 @@ for i in range(num):
     com = './bin/greedy {}{}{} {} '.format(
         sys.argv[1], "/matrix", i + 1, matrixDim)
     com += '{}{}{}'.format(sys.argv[2], "/mapping", i + 1)
+
+    command(com)
+
+    time.sleep(1)
+
+
+for i in range(numOfPred):
+    com = './bin/com_matrix_gen {}{}{}{} {}'.format(
+        sys.argv[5], "/matrix", "/matrix", i + 1, matrixDim)
+
+    command(com)
+
+    com = './bin/greedy {}{}{}{} {} '.format(
+        sys.argv[5], "/matrix", "/matrix", i + 1, matrixDim)
+    com += '{}{}{}{}'.format(sys.argv[5], "/test", "/mapping", i + 1)
 
     command(com)
 
