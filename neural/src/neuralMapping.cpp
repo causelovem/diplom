@@ -1,12 +1,19 @@
 #include "tiny_dnn/tiny_dnn.h"
 #include <fstream>
 #include <cmath>
+#include <algorithm>
 
 using namespace std;
 using namespace tiny_dnn;
 using namespace tiny_dnn::activation;
 
 #define EPS 0.0001
+
+
+bool pairsort (pair <int, int> f, pair <int, int> s)
+{
+    return (f.second < s.second);
+}
 
 
 int main(int argc, char** argv)
@@ -23,16 +30,41 @@ int main(int argc, char** argv)
         vec_t matrixVec;
 
         int tmp = 0;
+        std::vector<int> tmpVec;
         for (int i = 0; i < matrixDim; i++)
+        {
             for (int j = 0; j < matrixDim; j++)
             {
                 matrixFile >> tmp;
                 // if (tmp != 0)
                 //     matrixVec.push_back(1 / tmp);
                 // else
-                matrixVec.push_back(tmp);
-                    
+
+                // matrixVec.push_back(tmp);
+                tmpVec.push_back(tmp);
             }
+
+            std::vector<pair <int, int> > pairVec;
+            pair <int, int> tmpPair;
+            for (int k = 0; k < matrixDim; k++)
+            {
+                tmpPair = make_pair(k, tmpVec[k]);
+                pairVec.push_back(tmpPair);
+            }
+            sort(pairVec.begin(), pairVec.end(), pairsort);
+
+            for (int k = 0; k < matrixDim; k++)
+            {
+                if (pairVec[k].second == 0)
+                    tmpVec[pairVec[k].first] = 0;
+                else
+                    tmpVec[pairVec[k].first] = k + 1;
+            }
+
+            for (int k = 0; k < matrixDim; k++)
+                matrixVec.push_back(tmpVec[k]);
+        }
+
 
         inData.push_back(matrixVec);
         matrixVec.clear();
@@ -87,8 +119,20 @@ int main(int argc, char** argv)
         // << fully_connected_layer(matrixDim * 2, matrixDim * lenMapStr) << sigmoid();
 
 
-    net << fully_connected_layer(matrixDim * matrixDim, matrixDim * matrixDim) << sigmoid()
-        << fully_connected_layer(matrixDim * matrixDim, matrixDim * lenMapStr) << sigmoid();
+    // net << fully_connected_layer(matrixDim * matrixDim, matrixDim * matrixDim) << sigmoid()
+    //     << fully_connected_layer(matrixDim * matrixDim, matrixDim * lenMapStr) << sigmoid();
+
+    int numFilt = 3;
+
+    net << convolutional_layer(matrixDim, matrixDim, 4, 1, numFilt, padding::same)
+        << max_pooling_layer(matrixDim, matrixDim, numFilt, 2)
+        << convolutional_layer(matrixDim / 2, matrixDim / 2, 4, numFilt, numFilt, padding::same)
+        << max_pooling_layer(matrixDim / 2, matrixDim / 2, numFilt, 2)
+        << convolutional_layer(matrixDim / 4, matrixDim / 4, 4, numFilt, numFilt, padding::same)
+        << max_pooling_layer(matrixDim / 4, matrixDim / 4, numFilt, 2)
+        // << dropout_layer(matrixDim * matrixDim * numFilt / 64, 0.3)
+        << fully_connected_layer(matrixDim * matrixDim * numFilt / 64, matrixDim * matrixDim * numFilt / 128) << sigmoid()
+        << fully_connected_layer(matrixDim * matrixDim * numFilt / 128, matrixDim * lenMapStr) << sigmoid();
 
 
     int epo = 0;
@@ -100,7 +144,7 @@ int main(int argc, char** argv)
 
     // net.fit<cross_entropy>(optimizer, inData, desData, 3, 500,
 
-    net.fit<mse>(optimizer, inData, desData, 3, 500,
+    net.fit<mse>(optimizer, inData, desData, 3, 1000,
     // called for each mini-batch
          [&](){
            // cout << t.elapsed() << endl;

@@ -8,6 +8,8 @@ NEURAL_MAPPING_PREDICT = src/neuralMappingPredict
 CXX = g++
 CXXFLAGS = -g -O0 -Wall
 
+MATRIX_DIM = 64
+
 all: $(COM_MATRIX_GEN) $(GREEDY_FILE) $(BUILD_MATRIX) $(BUILD_RAND_SEND) $(CHECK_PROG)
  
 neuralTrain: $(NEURAL_MAPPING)
@@ -15,19 +17,25 @@ neuralTrain: $(NEURAL_MAPPING)
 neuralPredict: $(NEURAL_MAPPING_PREDICT)
 
 data:
+	mkdir -p matrix
+	mkdir -p mapping
+	mkdir -p pred
+	mkdir -p pred/matrix
+	mkdir -p pred/test
+	
 	rm -rf matrix/*
 	rm -rf mapping/*
 	rm -rf pred/matrix/*
 	rm -rf pred/test/*
-	python3 ./src/makeData.py matrix mapping 20 16 pred 3
+	python3 ./src/makeData.py matrix mapping 20 $(MATRIX_DIM) pred 3
 
 train: 
 	rm -rf prediction/*
-	time ./bin/neuralMapping 20 16 ./matrix/* ./mapping/*
+	time ./bin/neuralMapping 20 $(MATRIX_DIM) ./matrix/* ./mapping/*
 
 predict: 
 	rm -rf pred/prediction/*
-	time ./bin/neuralMappingPredict 3 16 ./pred/matrix/*
+	time ./bin/neuralMappingPredict 3 $(MATRIX_DIM) ./pred/matrix/*
 
 map:
 	./bin/greedy matrix512 512

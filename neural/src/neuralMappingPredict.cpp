@@ -8,6 +8,12 @@ using namespace tiny_dnn::activation;
 
 #define EPS 0.0001
 
+
+bool pairsort (pair <int, int> f, pair <int, int> s)
+{
+    return (f.second < s.second);
+}
+
 int main(int argc, char const *argv[])
 {
 	/*<numOfFiles> <dim> <matrixFiles>*/
@@ -22,13 +28,36 @@ int main(int argc, char const *argv[])
         vec_t matrixVec;
 
         int tmp = 0;
+        std::vector<int> tmpVec;
         for (int i = 0; i < matrixDim; i++)
+        {
             for (int j = 0; j < matrixDim; j++)
             {
                 matrixFile >> tmp;
-                matrixVec.push_back(tmp);
-                    
+                // matrixVec.push_back(tmp);
+                tmpVec.push_back(tmp);
             }
+
+            std::vector<pair <int, int> > pairVec;
+            pair <int, int> tmpPair;
+            for (int k = 0; k < matrixDim; k++)
+            {
+                tmpPair = make_pair(k, tmpVec[k]);
+                pairVec.push_back(tmpPair);
+            }
+            sort(pairVec.begin(), pairVec.end(), pairsort);
+
+            for (int k = 0; k < matrixDim; k++)
+            {
+                if (pairVec[k].second == 0)
+                    tmpVec[pairVec[k].first] = 0;
+                else
+                    tmpVec[pairVec[k].first] = k + 1;
+            }
+
+            for (int k = 0; k < matrixDim; k++)
+                matrixVec.push_back(tmpVec[k]);
+        }
 
         inData.push_back(matrixVec);
         matrixVec.clear();
@@ -52,8 +81,8 @@ int main(int argc, char const *argv[])
 
 	network<sequential> net;
 
-	// net.load("nets/net1");
-	net.load("nets/net2");
+	net.load("nets/net1");
+	// net.load("nets/net2");
 
 
 	int k = 3;
