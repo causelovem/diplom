@@ -1,0 +1,5 @@
+/bin*
+matrix/*
+mapping/*
+prediction/*
+pred/*

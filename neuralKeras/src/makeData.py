@@ -5,7 +5,7 @@ import time
 
 def command(com):
     result = subprocess.Popen(com.split(), stdout=subprocess.PIPE)
-    result.wait()
+    # result.wait()
     result = result.communicate()[0]
     return result[:-1]
 
@@ -22,30 +22,34 @@ matrixDim = int(sys.argv[4])
 numOfPred = int(sys.argv[6])
 
 for i in range(numOfTest):
-    com = '.\\bin\com_matrix_gen.exe {}{}{} {}'.format(
-        sys.argv[1], "\matrix", i + 1, matrixDim)
+    com = './bin/com_matrix_gen {}{}{} {}'.format(
+        sys.argv[1], "/matrix", i + 1, matrixDim)
 
+    print(com)
     command(com)
 
-    com = '.\\bin\greedy.exe {}{}{} {} '.format(
-        sys.argv[1], "\matrix", i + 1, matrixDim)
-    com += '{}{}{}'.format(sys.argv[2], "\mapping", i + 1)
+    com = './bin/greedy {}{}{} {} '.format(
+        sys.argv[1], "/matrix", i + 1, matrixDim)
+    com += '{}{}{}'.format(sys.argv[2], "/mapping", i + 1)
 
+    print(com)
     command(com)
 
     time.sleep(1)
 
 
 for i in range(numOfPred):
-    com = '.\\bin/com_matrix_gen.exe {}{}{}{} {}'.format(
-        sys.argv[5], "\matrix", "\matrix", i + 1, matrixDim)
+    com = './bin/com_matrix_gen {}{}{}{} {}'.format(
+        sys.argv[5], "/matrix", "/matrix", i + 1, matrixDim)
 
+    print(com)
     command(com)
 
-    com = '.\\bin\greedy.exe {}{}{}{} {} '.format(
-        sys.argv[5], "\matrix", "\matrix", i + 1, matrixDim)
-    com += '{}{}{}{}'.format(sys.argv[5], "\\test", "\mapping", i + 1)
+    com = './bin/greedy {}{}{}{} {} '.format(
+        sys.argv[5], "/matrix", "/matrix", i + 1, matrixDim)
+    com += '{}{}{}{}'.format(sys.argv[5], "/test", "/mapping", i + 1)
 
+    print(com)
     command(com)
 
     time.sleep(1)

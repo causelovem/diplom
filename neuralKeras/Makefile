@@ -8,7 +8,7 @@ NEURAL_MAPPING_PREDICT = src/neuralMappingPredict
 CXX = g++
 CXXFLAGS = -g -O0 -Wall
 
-MATRIX_DIM = 64
+MATRIX_DIM = 256
 
 all: $(COM_MATRIX_GEN) $(GREEDY_FILE) $(BUILD_MATRIX) $(BUILD_RAND_SEND) $(CHECK_PROG)
  
@@ -29,7 +29,7 @@ data:
 	rm -rf pred/matrix/*
 	rm -rf pred/prediction/*
 	rm -rf pred/test/*
-	python3 ./src/makeData.py matrix mapping 10 $(MATRIX_DIM) pred 3
+	python3 ./src/makeData.py matrix mapping 100 $(MATRIX_DIM) pred 3
 
 copy:
 	rm -rf /mnt/f/prog/diplom/neuralKeras/matrix/*

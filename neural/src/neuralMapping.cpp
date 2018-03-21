@@ -36,9 +36,6 @@ int main(int argc, char** argv)
             for (int j = 0; j < matrixDim; j++)
             {
                 matrixFile >> tmp;
-                // if (tmp != 0)
-                //     matrixVec.push_back(1 / tmp);
-                // else
 
                 // matrixVec.push_back(tmp);
                 tmpVec.push_back(tmp);
@@ -112,17 +109,9 @@ int main(int argc, char** argv)
     if ((matrixDim <= 1024) || (matrixDim <= 2048))
         max = 16;
 
-    // network<sequential> net = make_mlp<sigmoid>({matrixDim * matrixDim, matrixDim * matrixDim, matrixDim * 4});
-    network<sequential> net;
-    // net << fully_connected_layer(matrixDim * matrixDim, matrixDim * matrixDim / 2) << sigmoid()
-        // << fully_connected_layer(matrixDim * matrixDim / 2, matrixDim * 2) << sigmoid()
-        // << fully_connected_layer(matrixDim * 2, matrixDim * lenMapStr) << sigmoid();
-
-
-    // net << fully_connected_layer(matrixDim * matrixDim, matrixDim * matrixDim) << sigmoid()
-    //     << fully_connected_layer(matrixDim * matrixDim, matrixDim * lenMapStr) << sigmoid();
 
     int numFilt = 3;
+    network<sequential> net;
 
     net << convolutional_layer(matrixDim, matrixDim, 4, 1, numFilt, padding::same)
         << max_pooling_layer(matrixDim, matrixDim, numFilt, 2)
