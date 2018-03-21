@@ -9,10 +9,10 @@ using namespace tiny_dnn::activation;
 #define EPS 0.0001
 
 
-bool pairsort (pair <int, int> f, pair <int, int> s)
-{
-    return (f.second < s.second);
-}
+// bool pairsort (pair <int, int> f, pair <int, int> s)
+// {
+//     return (f.second < s.second);
+// }
 
 int main(int argc, char const *argv[])
 {
@@ -45,7 +45,8 @@ int main(int argc, char const *argv[])
                 tmpPair = make_pair(k, tmpVec[k]);
                 pairVec.push_back(tmpPair);
             }
-            sort(pairVec.begin(), pairVec.end(), pairsort);
+            // sort(pairVec.begin(), pairVec.end(), pairsort);
+            sort(pairVec.begin(), pairVec.end(), [](pair <int, int> f, pair <int, int> s) {return (f.second < s.second);});
 
             for (int k = 0; k < matrixDim; k++)
             {
