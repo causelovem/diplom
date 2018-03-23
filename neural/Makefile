@@ -27,7 +27,7 @@ data:
 	rm -rf mapping/*
 	rm -rf pred/matrix/*
 	rm -rf pred/test/*
-	python3 ./src/makeData.py matrix mapping 20 $(MATRIX_DIM) pred 3
+	python3 ./src/makeData.py matrix mapping 1 $(MATRIX_DIM) pred 3
 
 train: 
 	rm -rf prediction/*

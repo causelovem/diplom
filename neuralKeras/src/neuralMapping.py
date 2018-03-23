@@ -11,10 +11,11 @@ from keras.layers import Conv2D, MaxPooling2D, Flatten
 np.set_printoptions(threshold=np.nan)
 
 matrixList = []
-matrixFiles = os.listdir("../matrix")
+matrixFiles = os.listdir("./matrix")
 
+print('> Readind matrix data...')
 for file in matrixFiles:
-    fileIn = open("../matrix/" + file, "r")
+    fileIn = open("./matrix/" + file, "r")
 
     matrix = fileIn.readlines()
 
@@ -55,10 +56,11 @@ numOfSet = int(matrixVec.shape[0])
 # sys.exit(0)
 
 mappingList = []
-mappingFiles = os.listdir("../mapping")
+mappingFiles = os.listdir("./mapping")
 
+print('> Readind mapping data...')
 for file in mappingFiles:
-    fileIn = open("../mapping/" + file, "r")
+    fileIn = open("./mapping/" + file, "r")
 
     mapping = fileIn.readlines()
 
@@ -78,6 +80,7 @@ mappingVec = np.array(mappingList)
 mappingVec = mappingVec.reshape(numOfSet, matrixDim * 4)
 
 
+print('> Preparing for train...')
 lenMapStr = 4
 numFilt = 3
 model = Sequential()
@@ -95,10 +98,10 @@ model.add(Dense(matrixDim * lenMapStr, activation='sigmoid'))
 
 model.compile(loss='mse', optimizer='Adam', metrics=['accuracy'])
 
-model.fit(matrixVec, mappingVec, epochs=500, batch_size=3)
-score = model.evaluate(matrixVec, mappingVec, batch_size=3)
+model.fit(matrixVec, mappingVec, epochs=200, batch_size=5)
+score = model.evaluate(matrixVec, mappingVec, batch_size=5)
 
-model.save('../nets/net1.h5')
+model.save('./nets/net1.h5')
 
 max = 0
 if (matrixDim <= 8):
@@ -111,11 +114,12 @@ elif ((matrixDim <= 1024) or (matrixDim <= 2048)):
     max = 16
 
 
+print('> Predict on trannig data...')
 for i in range(len(matrixVec)):
     pred = model.predict(matrixVec[i:i + 1])
-    print("../prediction/mapping" + str(i + 1) + "Pred")
-    print(pred)
-    fileOut = open("../prediction/mapping" + str(i + 1) + "Pred", "w")
+    print("./prediction/mapping" + str(i + 1) + "Pred")
+    # print(pred)
+    fileOut = open("./prediction/mapping" + str(i + 1) + "Pred", "w")
 
     for j in range(matrixDim):
         for k in range(lenMapStr):

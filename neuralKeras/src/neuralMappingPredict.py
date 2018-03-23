@@ -9,10 +9,11 @@ from keras.models import Sequential, load_model
 np.set_printoptions(threshold=np.nan)
 
 matrixList = []
-matrixFiles = os.listdir("../pred/matrix")
+matrixFiles = os.listdir("./pred/matrix")
 
+print('> Readind matrix data...')
 for file in matrixFiles:
-    fileIn = open("../matrix/" + file, "r")
+    fileIn = open("./matrix/" + file, "r")
 
     matrix = fileIn.readlines()
 
@@ -52,9 +53,10 @@ numOfSet = int(matrixVec.shape[0])
 
 # sys.exit(0)
 
+print('> Preparing for prediction...')
 lenMapStr = 4
 model = Sequential()
-model = load_model('../nets/net1.h5')
+model = load_model('./nets/net1.h5')
 
 max = 0
 if (matrixDim <= 8):
@@ -67,11 +69,12 @@ elif ((matrixDim <= 1024) or (matrixDim <= 2048)):
     max = 16
 
 
+print('> Predict on test data...')
 for i in range(len(matrixVec)):
     pred = model.predict(matrixVec[i:i + 1])
-    print("../pred/prediction/mapping" + str(i + 1) + "Pred")
-    print(pred)
-    fileOut = open("../pred/prediction/mapping" + str(i + 1) + "Pred", "w")
+    print("./pred/prediction/mapping" + str(i + 1) + "Pred")
+    # print(pred)
+    fileOut = open("./pred/prediction/mapping" + str(i + 1) + "Pred", "w")
 
     for j in range(matrixDim):
         for k in range(lenMapStr):

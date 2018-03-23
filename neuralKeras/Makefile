@@ -8,7 +8,9 @@ NEURAL_MAPPING_PREDICT = src/neuralMappingPredict
 CXX = g++
 CXXFLAGS = -g -O0 -Wall
 
-MATRIX_DIM = 256
+MATRIX_DIM = 128
+MATRIX_NUMBER = 20
+TEST_NUMBER = 7
 
 all: $(COM_MATRIX_GEN) $(GREEDY_FILE) $(BUILD_MATRIX) $(BUILD_RAND_SEND) $(CHECK_PROG)
  
@@ -29,7 +31,7 @@ data:
 	rm -rf pred/matrix/*
 	rm -rf pred/prediction/*
 	rm -rf pred/test/*
-	python3 ./src/makeData.py matrix mapping 100 $(MATRIX_DIM) pred 3
+	python3 ./src/makeData.py matrix mapping $(MATRIX_NUMBER) $(MATRIX_DIM) pred $(TEST_NUMBER)
 
 copy:
 	rm -rf /mnt/f/prog/diplom/neuralKeras/matrix/*
@@ -50,13 +52,16 @@ rescopy:
 hardcopy:
 	cp -r /mnt/f/prog/diplom/neuralKeras ../
 
+checkMap:
+	python3 ./src/mappingChecker.py
+
 train: 
 	rm -rf prediction/*
-	time ./bin/neuralMapping 20 $(MATRIX_DIM) ./matrix/* ./mapping/*
+	time python3 ./src/neuralMapping.py
 
 predict: 
 	rm -rf pred/prediction/*
-	time ./bin/neuralMappingPredict 3 $(MATRIX_DIM) ./pred/matrix/*
+	time python3 ./src/neuralMappingPredict.py
 
 map:
 	./bin/greedy matrix512 512
