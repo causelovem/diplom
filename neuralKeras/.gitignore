@@ -3,3 +3,4 @@ matrix/*
 mapping/*
 prediction/*
 pred/*
+nets/*

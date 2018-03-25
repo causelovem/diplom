@@ -5,8 +5,9 @@ import numpy as np
 
 # import keras
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, Dropout, ZeroPadding2D
 from keras.layers import Conv2D, MaxPooling2D, Flatten
+# from keras.optimizers import SGD
 
 np.set_printoptions(threshold=np.nan)
 
@@ -18,19 +19,20 @@ for file in matrixFiles:
     fileIn = open("./matrix/" + file, "r")
 
     matrix = fileIn.readlines()
+    dim = len(matrix)
 
-    for i in range(len(matrix)):
+    for i in range(dim):
         matrix[i] = matrix[i][:-2].split(' ')
         for j in range(len(matrix[i])):
             matrix[i][j] = int(matrix[i][j])
 
         pairList = []
-        for j in range(len(matrix[i])):
+        for j in range(dim):
             pairList.append((j, matrix[i][j]))
 
         pairList.sort(key=lambda x: x[1])
 
-        for j in range(len(matrix[i])):
+        for j in range(dim):
             if (pairList[j][1] == 0):
                 matrix[i][pairList[j][0]] = 0
             else:
@@ -63,10 +65,12 @@ for file in mappingFiles:
     fileIn = open("./mapping/" + file, "r")
 
     mapping = fileIn.readlines()
+    dim = len(mapping)
 
-    for i in range(len(mapping)):
+    for i in range(dim):
         mapping[i] = mapping[i][:-1].split(' ')
-        for j in range(len(mapping[i])):
+        strDim = len(mapping[i])
+        for j in range(strDim):
             if (mapping[i][j] != '0'):
                 mapping[i][j] = 1.0 / int(mapping[i][j])
             else:
@@ -79,29 +83,81 @@ for file in mappingFiles:
 mappingVec = np.array(mappingList)
 mappingVec = mappingVec.reshape(numOfSet, matrixDim * 4)
 
-
 print('> Preparing for train...')
 lenMapStr = 4
-numFilt = 3
+numFilt = 64
 model = Sequential()
-model.add(Conv2D(numFilt, (4, 4), padding='same',
-                 input_shape=(matrixDim, matrixDim, 1)))
+# model.add(Conv2D(numFilt, (4, 4), padding='same',
+#                  input_shape=(matrixDim, matrixDim, 1)))
+# model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(Conv2D(numFilt, (4, 4), padding='same'))
+# model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(Conv2D(numFilt, (4, 4), padding='same'))
+# model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(Flatten())
+# model.add(Dense(int(matrixDim * matrixDim * numFilt / 64),
+#                 activation='sigmoid'))
+# model.add(Dense(matrixDim * lenMapStr, activation='sigmoid'))
+
+
+model.add(ZeroPadding2D((1, 1), input_shape=(matrixDim, matrixDim, 1)))
+# model.add(Conv2D(numFilt, (3, 3), padding='same',
+#                  input_shape=(matrixDim, matrixDim, 1)))
+model.add(Conv2D(numFilt, (3, 3), padding='same'))
+model.add(ZeroPadding2D((1, 1)))
+model.add(Conv2D(numFilt, (3, 3), padding='same'))
+# model.add(ZeroPadding2D((1, 1)))
+# model.add(Conv2D(64, (3, 3), padding='same'))
+model.add(MaxPooling2D(pool_size=(4, 4)))
+
+model.add(ZeroPadding2D((1, 1)))
+model.add(Conv2D(numFilt, (3, 3), padding='same'))
+model.add(ZeroPadding2D((1, 1)))
+model.add(Conv2D(numFilt, (3, 3), padding='same'))
+# model.add(ZeroPadding2D((1, 1)))
+# model.add(Conv2D(64, (3, 3), padding='same'))
+model.add(MaxPooling2D(pool_size=(4, 4)))
+
+model.add(ZeroPadding2D((1, 1)))
+model.add(Conv2D(numFilt, (3, 3), padding='same'))
+model.add(ZeroPadding2D((1, 1)))
+model.add(Conv2D(numFilt, (3, 3), padding='same'))
+# model.add(Conv2D(numFilt, (3, 3), padding='same'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Conv2D(numFilt, (4, 4), padding='same'))
+
+model.add(ZeroPadding2D((1, 1)))
+model.add(Conv2D(numFilt, (3, 3), padding='same'))
+model.add(ZeroPadding2D((1, 1)))
+model.add(Conv2D(numFilt, (3, 3), padding='same'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
-model.add(Conv2D(numFilt, (4, 4), padding='same'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+
+
 model.add(Flatten())
-model.add(Dense(int(matrixDim * matrixDim * numFilt / 64),
+# model.add(Dense(int(matrixDim * matrixDim * numFilt / 32),
+#                 activation='sigmoid'))
+model.add(Dense(int(matrixDim * matrixDim * numFilt / (64 * 64)),
                 activation='sigmoid'))
+# model.add(Dense(int(matrixDim * matrixDim / 64),
+#                 activation='sigmoid'))
+# model.add(Dropout(0.5))
 model.add(Dense(matrixDim * lenMapStr, activation='sigmoid'))
 
-model.compile(loss='mse', optimizer='Adam', metrics=['accuracy'])
+# model.add(Dense(int(matrixDim * matrixDim * numFilt / 64),
+#                 activation='sigmoid', init='he_normal'))
+# model.add(Dense(matrixDim * lenMapStr, activation='sigmoid',
+#                 init='he_normal'))
 
-model.fit(matrixVec, mappingVec, epochs=200, batch_size=5)
+# softplus softsign relu sigmoid/hard_sigmoid
+
+# Adadelta Adam sgd
+# poisson mse logcosh mean_squared_logarithmic_error categorical_hinge
+# sgd = SGD(lr=0.01, momentum=0.9, nesterov=True)
+model.compile(loss='mse', optimizer='Adadelta', metrics=['accuracy'])
+
+model.fit(matrixVec, mappingVec, epochs=5000, batch_size=5)
 score = model.evaluate(matrixVec, mappingVec, batch_size=5)
 
-model.save('./nets/net1.h5')
+model.save('./nets/net2.h5')
 
 max = 0
 if (matrixDim <= 8):

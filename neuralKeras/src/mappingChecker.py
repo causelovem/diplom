@@ -1,7 +1,11 @@
 import os
 
 mappingFiles = os.listdir("./pred/prediction")
+# print(mappingFiles)
+# mappingFiles.sort(key=lambda x: x[7:-4])
+# print(mappingFiles)
 # mappingFiles = os.listdir("../mapping/")
+
 
 fileNumber = 1
 for file in mappingFiles:
@@ -17,7 +21,7 @@ for file in mappingFiles:
         for j in range(i + 1, len(mapping)):
             if (mapping[i] == mapping[j]):
                 err = 'In map file {}: str {} and {} are equal to "{}"'.format(
-                    fileNumber, i, j, mapping[i])
+                    file, i + 1, j + 1, mapping[i])
                 print(err)
                 break
         if (err != ''):

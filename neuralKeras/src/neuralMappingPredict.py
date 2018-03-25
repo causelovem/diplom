@@ -13,22 +13,23 @@ matrixFiles = os.listdir("./pred/matrix")
 
 print('> Readind matrix data...')
 for file in matrixFiles:
-    fileIn = open("./matrix/" + file, "r")
+    fileIn = open("./pred/matrix/" + file, "r")
 
     matrix = fileIn.readlines()
+    dim = len(matrix)
 
-    for i in range(len(matrix)):
+    for i in range(dim):
         matrix[i] = matrix[i][:-2].split(' ')
         for j in range(len(matrix[i])):
             matrix[i][j] = int(matrix[i][j])
 
         pairList = []
-        for j in range(len(matrix[i])):
+        for j in range(dim):
             pairList.append((j, matrix[i][j]))
 
         pairList.sort(key=lambda x: x[1])
 
-        for j in range(len(matrix[i])):
+        for j in range(dim):
             if (pairList[j][1] == 0):
                 matrix[i][pairList[j][0]] = 0
             else:
@@ -44,6 +45,32 @@ matrixVec = np.array(matrixList)
 matrixDim = int(matrixVec.shape[1])
 numOfSet = int(matrixVec.shape[0])
 
+mappingList = []
+mappingFiles = os.listdir("./pred/test")
+
+print('> Readind mapping data...')
+for file in mappingFiles:
+    fileIn = open("./pred/test/" + file, "r")
+
+    mapping = fileIn.readlines()
+    dim = len(mapping)
+
+    for i in range(dim):
+        mapping[i] = mapping[i][:-1].split(' ')
+        strDim = len(mapping[i])
+        for j in range(strDim):
+            if (mapping[i][j] != '0'):
+                mapping[i][j] = 1.0 / int(mapping[i][j])
+            else:
+                mapping[i][j] = int(mapping[i][j])
+    tmp = np.array(mapping)
+    mappingList.append(tmp)
+
+    fileIn.close()
+
+mappingVec = np.array(mappingList)
+mappingVec = mappingVec.reshape(numOfSet, matrixDim * 4)
+
 # print(matrixVec.shape)
 # for i in range(matrixDim):
 #     print(i)
@@ -56,7 +83,8 @@ numOfSet = int(matrixVec.shape[0])
 print('> Preparing for prediction...')
 lenMapStr = 4
 model = Sequential()
-model = load_model('./nets/net1.h5')
+# model = load_model('./nets/net1.h5')
+model = load_model('./nets/net2.h5')
 
 max = 0
 if (matrixDim <= 8):
@@ -90,5 +118,5 @@ for i in range(len(matrixVec)):
 
     fileOut.close()
 
-# score = model.evaluate(matrixVec, mappingVec, batch_size=3)
-# print(score)
+score = model.evaluate(matrixVec, mappingVec, batch_size=3)
+print(score)
