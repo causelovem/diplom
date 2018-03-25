@@ -21,6 +21,7 @@ neuralPredict: $(NEURAL_MAPPING_PREDICT)
 data:
 	mkdir -p matrix
 	mkdir -p mapping
+	mkdir -p prediction
 	mkdir -p pred
 	mkdir -p pred/matrix
 	mkdir -p pred/prediction
@@ -28,6 +29,7 @@ data:
 	
 	rm -rf matrix/*
 	rm -rf mapping/*
+	rm -rf prediction/*
 	rm -rf pred/matrix/*
 	rm -rf pred/prediction/*
 	rm -rf pred/test/*
