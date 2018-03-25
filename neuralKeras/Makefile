@@ -61,11 +61,11 @@ checkMap:
 	python3 ./src/mappingChecker.py
 
 train: 
-	rm prediction/*
+	rm -rf prediction/*
 	time python3 ./src/neuralMapping.py
 
 predict: 
-	rm pred/prediction/*
+	rm -rf pred/prediction/*
 	time python3 ./src/neuralMappingPredict.py
 
 map:
