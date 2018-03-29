@@ -8,9 +8,9 @@ NEURAL_MAPPING_PREDICT = src/neuralMappingPredict
 CXX = g++
 CXXFLAGS = -g -O0 -Wall
 
-MATRIX_DIM = 512
-MATRIX_NUMBER = 30
-TEST_NUMBER = 10
+MATRIX_DIM = 256
+MATRIX_NUMBER = 10000
+TEST_NUMBER = 200
 
 all: $(COM_MATRIX_GEN) $(GREEDY_FILE) $(BUILD_MATRIX) $(BUILD_RAND_SEND) $(CHECK_PROG)
  
@@ -48,8 +48,9 @@ copy:
 	cp -r pred/ /mnt/f/prog/diplom/neuralKeras
 
 rescopy:
-	cp -r /mnt/f/prog/diplom/neuralKeras/pred ./
-	cp -r /mnt/f/prog/diplom/neuralKeras/nets ./
+	# cp -r /mnt/f/prog/diplom/neuralKeras/pred ./
+	# cp -r /mnt/f/prog/diplom/neuralKeras/nets ./
+	cp -r /mnt/f/prog/diplom/neuralKeras/src ./
 
 hardcopy:
 	cp -r /mnt/f/prog/diplom/neuralKeras ../

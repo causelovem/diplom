@@ -1,11 +1,8 @@
 import os
 
 mappingFiles = os.listdir("./pred/prediction")
-# print(mappingFiles)
-# mappingFiles.sort(key=lambda x: x[7:-4])
-# print(mappingFiles)
+mappingFiles.sort(key=lambda x: int(x[7:-4]))
 # mappingFiles = os.listdir("../mapping/")
-
 
 fileNumber = 1
 for file in mappingFiles:
