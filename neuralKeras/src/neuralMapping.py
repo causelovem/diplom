@@ -4,7 +4,7 @@ import os
 import numpy as np
 
 from keras.models import Sequential, load_model
-from keras.layers import Dense, Dropout, ZeroPadding2D
+from keras.layers import Dense, Dropout, ZeroPadding2D, AveragePooling2D
 from keras.layers import Conv2D, MaxPooling2D, Flatten, BatchNormalization
 from keras.optimizers import SGD
 
@@ -165,14 +165,15 @@ model.add(MaxPooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.2))
 
 model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(Conv2D(numFilt, (convSize, convSize), padding='same',
+model.add(Conv2D(numFilt * 2, (convSize, convSize), padding='same',
                  kernel_initializer='he_uniform', activation='relu'))
 model.add(BatchNormalization(axis=3))
 model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(Conv2D(numFilt, (convSize, convSize), padding='same',
+model.add(Conv2D(numFilt * 2, (convSize, convSize), padding='same',
                  kernel_initializer='he_uniform', activation='relu'))
 model.add(BatchNormalization(axis=3))
 model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(AveragePooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.2))
 
 model.add(Flatten())
@@ -196,8 +197,8 @@ model.add(Dense(matrixDim * lenMapStr,
 sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(loss='mse', optimizer='Adam', metrics=['accuracy'])
 
-model.fit(matrixVec, mappingVec, epochs=100, batch_size=20)
-score = model.evaluate(matrixVec, mappingVec, batch_size=20)
+model.fit(matrixVec, mappingVec, epochs=500, batch_size=5)
+score = model.evaluate(matrixVec, mappingVec, batch_size=5)
 
 
 model.save('./nets/net1.h5')
