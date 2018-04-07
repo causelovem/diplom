@@ -2,10 +2,30 @@
 import os
 # import sys
 import numpy as np
+import math
 
 # import keras
 from keras.models import Sequential, load_model
 # from keras.utils import plot_model
+
+
+def checkHowMuch(vec):
+    size = len(vec)
+    for i in range(size):
+        if (vec[i] == -1):
+            return i
+
+    return -1
+
+
+def checkDuplicate(vec, pos):
+    size = len(vec)
+    for i in range(size):
+        if (vec[i] == pos):
+            return -1
+
+    return 1
+
 
 np.set_printoptions(threshold=np.nan)
 
@@ -13,12 +33,19 @@ matrixList = []
 matrixFiles = os.listdir("./pred/matrix")
 matrixFiles.sort(key=lambda x: int(x[6:]))
 
+persent = -1
+quan = 16
 print('> Readind matrix data...')
 for file in matrixFiles:
+    persent += 1
+    print(str(persent * 100 / len(matrixFiles)) + '%', end='')
+    print('\r', end='')
+
     fileIn = open("./pred/matrix/" + file, "r")
 
     matrix = fileIn.readlines()
     dim = len(matrix)
+    transMatrix = np.zeros((dim, 6)) - np.ones((dim, 6))
 
     for i in range(dim):
         matrix[i] = matrix[i][:-2].split(' ')
@@ -29,22 +56,40 @@ for file in matrixFiles:
         for j in range(dim):
             pairList.append((j, int(matrix[i][j])))
 
-        pairList.sort(key=lambda x: x[1])
+        pairList.sort(key=lambda x: x[1], reverse=True)
+        countNeigh = checkHowMuch(transMatrix[i])
+        countNum = 0
 
-        for j in range(dim):
-            if (pairList[j][1] == 0):
-                matrix[i][pairList[j][0]] = 0
-            else:
-                matrix[i][pairList[j][0]] = j + 1
+        while ((countNeigh < 6) and (countNeigh != -1) and (countNum < dim)):
+            if (pairList[countNum][1] == 0):
+                break
 
-    tmp = np.array(matrix)
+            pos = pairList[countNum][0]
+            place2 = checkHowMuch(transMatrix[pos])
+            val1 = checkDuplicate(transMatrix[i], pos)
+            val2 = checkDuplicate(transMatrix[pos], i)
+
+            if (val1 == 1):
+                if (place2 != -1):
+                    if (val2 == 1):
+                        transMatrix[i][countNeigh] = pos
+                        countNeigh += 1
+                        transMatrix[pos][place2] = i
+            countNum += 1
+
+    # tmp = np.array(matrix)
+    tmp = transMatrix
+    # tmp = np.array(sque)
+    # print(tmp)
+    # print('\r\n')
     tmp = np.expand_dims(tmp, axis=2)
     matrixList.append(tmp)
 
     fileIn.close()
 
 matrixVec = np.array(matrixList)
-matrixDim = int(matrixVec.shape[1])
+# matrixDim = int(matrixVec.shape[1])
+matrixDim = 256
 numOfSet = int(matrixVec.shape[0])
 
 print(matrixVec.shape)
@@ -91,6 +136,7 @@ for file in mappingFiles:
         for j in range(strDim):
             # mapping[i][j] = int(mapping[i][j]) * step
             mapping[i][j] = int(mapping[i][j]) / 10
+            # mapping[i][j] = int(mapping[i][j]) / max
             # mapping[i][j] = int(mapping[i][j])
     tmp = np.array(mapping)
     mappingList.append(tmp)
@@ -107,6 +153,7 @@ lenMapStr = 4
 model = Sequential()
 model = load_model('./nets/net1.h5')
 # model = load_model('./nets/net2.h5')
+# model = load_model('./nets/netnet.h5')
 # plot_model(model, to_file='model.png')
 
 # max = 0
@@ -119,11 +166,15 @@ model = load_model('./nets/net1.h5')
 # elif ((matrixDim <= 1024) or (matrixDim <= 2048)):
 #     max = 16
 
-
+persent = -1
 print('> Predict on test data...')
 for i in range(len(matrixVec)):
+    persent += 1
+    print(str(persent * 100 / len(matrixVec)) + '%', end='')
+    print('\r', end='')
+
     pred = model.predict(matrixVec[i:i + 1])
-    print("./pred/prediction/mapping" + str(i + 1) + "Pred")
+    # print("./pred/prediction/mapping" + str(i + 1) + "Pred")
     # print(pred)
     fileOut = open("./pred/prediction/mapping" + str(i + 1) + "Pred", "w")
 
@@ -146,6 +197,7 @@ for i in range(len(matrixVec)):
             if (abs(pred[0][j * lenMapStr + k] - 0) > 0.001):
                 # tmp = int(round(pred[0][j * lenMapStr + k] / step))
                 tmp = int(round(pred[0][j * lenMapStr + k] * 10))
+                # tmp = int(round(pred[0][j * lenMapStr + k] * max))
                 # tmp = int(round(pred[0][j * lenMapStr + k]))
                 if (tmp > max - 1):
                     fileOut.write(str(int(0)) + ' ')

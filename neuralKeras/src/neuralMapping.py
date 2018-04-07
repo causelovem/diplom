@@ -1,12 +1,16 @@
 # import setuptools
 import os
-# import sys
+import sys
 import numpy as np
 
 from keras.models import Sequential, load_model
 from keras.layers import Dense, Dropout, ZeroPadding2D, AveragePooling2D
 from keras.layers import Conv2D, MaxPooling2D, Flatten, BatchNormalization
+from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
+from keras.utils import plot_model
+import matplotlib.pyplot as plt
+from keras.regularizers import l2
 
 np.set_printoptions(threshold=np.nan)
 
@@ -14,8 +18,14 @@ matrixList = []
 matrixFiles = os.listdir("./matrix")
 matrixFiles.sort(key=lambda x: int(x[6:]))
 
+persent = -1
+# quan = 16
 print('> Readind matrix data...')
 for file in matrixFiles:
+    persent += 1
+    print(str(persent * 100 / len(matrixFiles)) + '%', end='')
+    print('\r', end='')
+
     fileIn = open("./matrix/" + file, "r")
 
     matrix = fileIn.readlines()
@@ -57,6 +67,9 @@ for file in matrixFiles:
     #             matrix[j][pairList[i][0]] = j + 1
 
     tmp = np.array(matrix)
+    # tmp = np.array(sque)
+    # print(sque)
+    # print('\r\n')
     tmp = np.expand_dims(tmp, axis=2)
     matrixList.append(tmp)
 
@@ -65,6 +78,8 @@ for file in matrixFiles:
 matrixVec = np.array(matrixList)
 matrixDim = int(matrixVec.shape[1])
 numOfSet = int(matrixVec.shape[0])
+
+print(matrixVec.shape)
 
 max = 0
 if (matrixDim <= 8):
@@ -120,6 +135,8 @@ mappingVec = mappingVec.reshape(numOfSet, matrixDim * 4)
 print('> Preparing for train...')
 lenMapStr = 4
 numFilt = 16
+# lam = 0.0001
+# W_regularizer=l2(lam)
 
 convSize = 3
 paddSize = 1
@@ -127,57 +144,63 @@ model = Sequential()
 
 model.add(ZeroPadding2D((paddSize, paddSize),
                         input_shape=(matrixDim, matrixDim, 1)))
-model.add(Conv2D(2, (convSize, convSize), padding='same', kernel_initializer='he_uniform', activation='relu'))
-model.add(BatchNormalization(axis=3))
+model.add(Conv2D(2, (convSize, convSize), padding='same',
+                 kernel_initializer='he_uniform', activation='relu'))
+# model.add(BatchNormalization(axis=3))
 model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(Conv2D(2, (convSize, convSize), padding='same', kernel_initializer='he_uniform', activation='relu'))
-model.add(BatchNormalization(axis=3))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Conv2D(2, (convSize, convSize), padding='same',
+                 kernel_initializer='he_uniform', activation='relu'))
+# model.add(BatchNormalization(axis=3))
+model.add(AveragePooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.2))
 
 model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(Conv2D(4, (convSize, convSize), padding='same', kernel_initializer='he_uniform', activation='relu'))
-model.add(BatchNormalization(axis=3))
+model.add(Conv2D(4, (convSize, convSize), padding='same',
+                 kernel_initializer='he_uniform', activation='relu'))
+# model.add(BatchNormalization(axis=3))
 model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(Conv2D(4, (convSize, convSize), padding='same', kernel_initializer='he_uniform', activation='relu'))
-model.add(BatchNormalization(axis=3))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Conv2D(4, (convSize, convSize), padding='same',
+                 kernel_initializer='he_uniform', activation='relu'))
+# model.add(BatchNormalization(axis=3))
+model.add(AveragePooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.2))
 
 model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(Conv2D(8, (convSize, convSize), padding='same', kernel_initializer='he_uniform', activation='relu'))
-model.add(BatchNormalization(axis=3))
+model.add(Conv2D(8, (convSize, convSize), padding='same',
+                 kernel_initializer='he_uniform', activation='relu'))
+# model.add(BatchNormalization(axis=3))
 model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(Conv2D(8, (convSize, convSize), padding='same', kernel_initializer='he_uniform', activation='relu'))
-model.add(BatchNormalization(axis=3))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Conv2D(8, (convSize, convSize), padding='same',
+                 kernel_initializer='he_uniform', activation='relu'))
+# model.add(BatchNormalization(axis=3))
+model.add(AveragePooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.2))
 
 model.add(ZeroPadding2D((paddSize, paddSize)))
 model.add(Conv2D(numFilt, (convSize, convSize), padding='same',
                  kernel_initializer='he_uniform', activation='relu'))
-model.add(BatchNormalization(axis=3))
+# model.add(BatchNormalization(axis=3))
 model.add(ZeroPadding2D((paddSize, paddSize)))
 model.add(Conv2D(numFilt, (convSize, convSize), padding='same',
                  kernel_initializer='he_uniform', activation='relu'))
-model.add(BatchNormalization(axis=3))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(BatchNormalization(axis=3))
+model.add(AveragePooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.2))
 
 model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(Conv2D(numFilt * 2, (convSize, convSize), padding='same',
+model.add(Conv2D(numFilt, (convSize, convSize), padding='same',
                  kernel_initializer='he_uniform', activation='relu'))
-model.add(BatchNormalization(axis=3))
+# model.add(BatchNormalization(axis=3))
 model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(Conv2D(numFilt * 2, (convSize, convSize), padding='same',
+model.add(Conv2D(numFilt, (convSize, convSize), padding='same',
                  kernel_initializer='he_uniform', activation='relu'))
-model.add(BatchNormalization(axis=3))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(BatchNormalization(axis=3))
+model.add(AveragePooling2D(pool_size=(2, 2)))
 # model.add(AveragePooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.2))
 
 model.add(Flatten())
-model.add(Dense(int(matrixDim * matrixDim * numFilt / (32 * 32)),
+model.add(Dense(int(matrixDim * matrixDim * numFilt / (16 * 16)),
                 activation='relu', kernel_initializer='he_uniform'))
 # model.add(Dropout(0.1))
 model.add(Dense(int(matrixDim * matrixDim * numFilt / (32 * 32)),
@@ -197,15 +220,43 @@ model.add(Dense(matrixDim * lenMapStr,
 sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(loss='mse', optimizer='Adam', metrics=['accuracy'])
 
-model.fit(matrixVec, mappingVec, epochs=500, batch_size=5)
+history = model.fit(matrixVec, mappingVec, epochs=500, batch_size=5,
+                    callbacks=[EarlyStopping(monitor='loss', patience=20)])
 score = model.evaluate(matrixVec, mappingVec, batch_size=5)
 
 
 model.save('./nets/net1.h5')
+plot_model(model, to_file='model.png', show_shapes=True)
 
 
+plt.subplot(211)
+plt.plot(history.history['acc'])
+# plt.plot(history.history['val_acc'])
+plt.title('model accuracy')
+plt.ylabel('accuracy')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+
+# summarize history for loss
+plt.subplot(212)
+plt.plot(history.history['loss'])
+# plt.plot(history.history['val_loss'])
+plt.title('model loss')
+plt.ylabel('loss')
+plt.xlabel('epoch')
+plt.legend(['train', 'test'], loc='upper left')
+plt.savefig('plot.png', fmt='png')
+# plt.show()
+plt.clf()
+
+
+persent = -1
 print('> Predict on trannig data...')
 for i in range(len(matrixVec)):
+    persent += 1
+    print(str(persent * 100 / len(matrixFiles)) + '%', end='')
+    print('\r', end='')
+
     pred = model.predict(matrixVec[i:i + 1])
     # print("./prediction/mapping" + str(i + 1) + "Pred")
     # print(pred)

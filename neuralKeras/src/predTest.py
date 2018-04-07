@@ -2,6 +2,7 @@
 import os
 # import sys
 import numpy as np
+import math
 
 # import keras
 from keras.models import Sequential, load_model
@@ -13,6 +14,7 @@ matrixList = []
 matrixFiles = os.listdir("./pred/matrix")
 matrixFiles.sort(key=lambda x: int(x[6:]))
 
+quan = 16
 print('> Readind matrix data...')
 for file in matrixFiles:
     fileIn = open("./pred/matrix/" + file, "r")
@@ -37,14 +39,75 @@ for file in matrixFiles:
             else:
                 matrix[i][pairList[j][0]] = j + 1
 
-    tmp = np.array(matrix)
+    block = dim // quan
+    sque = []
+    for k in range(quan):
+        newStr = []
+        sum = 0
+        for t in range(quan):
+            for i in range(block):
+                for j in range(block):
+                    sum += matrix[i + t * block][j + k * block]
+            sum /= block * block
+            newStr.append(sum)
+        sque.append(newStr)
+
+    for i in range(quan):
+        size = quan
+        while size > 1:
+            size //= 2
+            tmp = []
+            for j in range(size):
+                sque[i][j] = (sque[i][2 * j] + sque[i][2 * j + 1]) / 2
+                tmp.append(sque[i][j] - sque[i][2 * j + 1])
+            for j in range(len(tmp)):
+                sque[i][j + size] = tmp[j]
+
+    for i in range(quan):
+        size = quan
+        while size > 1:
+            size //= 2
+            tmp = []
+            for j in range(size):
+                sque[j][i] = (sque[2 * j][i] + sque[2 * j + 1][i]) / 2
+                tmp.append(sque[j][i] - sque[2 * j + 1][i])
+            for j in range(len(tmp)):
+                sque[j + size][i] = tmp[j]
+
+    for i in range(quan):
+        for j in range(quan):
+            sque[i][j] *= min(max(math.log(i + 1, 2), math.log(j + 1, 2)), 5)
+
+    # for i in range(dim):
+    #     matrix[i] = matrix[i][:-2].split(' ')
+    #     for j in range(len(matrix[i])):
+    #         matrix[i][j] = int(matrix[i][j])
+
+    # for i in range(dim):
+    #     pairList = []
+    #     for j in range(dim):
+    #         pairList.append((j, int(matrix[j][i])))
+
+    #     pairList.sort(key=lambda x: x[1])
+
+    #     for j in range(dim):
+    #         if (pairList[j][1] == 0):
+    #             matrix[j][pairList[i][0]] = 0
+    #         else:
+    #             matrix[j][pairList[i][0]] = j + 1
+
+    # tmp = np.array(matrix)
+    tmp = np.array(sque)
+    # print(sque)
+    # print('\r\n')
     tmp = np.expand_dims(tmp, axis=2)
     matrixList.append(tmp)
 
     fileIn.close()
 
 matrixVec = np.array(matrixList)
-matrixDim = int(matrixVec.shape[1])
+# matrixDim = int(matrixVec.shape[1])
+matrixDim = 256
 numOfSet = int(matrixVec.shape[0])
 
 print(matrixVec.shape)
@@ -105,8 +168,9 @@ mappingVec = mappingVec.reshape(numOfSet, matrixDim * 4)
 print('> Preparing for prediction...')
 lenMapStr = 4
 model = Sequential()
-model = load_model('./nets/net1.h5')
+# model = load_model('./nets/net1.h5')
 # model = load_model('./nets/net2.h5')
+model = load_model('./nets/netnet.h5')
 # plot_model(model, to_file='model.png')
 
 # max = 0
@@ -123,7 +187,7 @@ model = load_model('./nets/net1.h5')
 print('> Predict on test data...')
 for i in range(len(matrixVec)):
     pred = model.predict(matrixVec[i:i + 1])
-    print("./pred/prediction/mapping" + str(i + 1) + "Pred")
+    # print("./pred/prediction/mapping" + str(i + 1) + "Pred")
     # print(pred)
     fileOut = open("./pred/prediction/mapping" + str(i + 1) + "Pred", "w")
 
