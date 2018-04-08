@@ -77,7 +77,7 @@ for file in matrixFiles:
                     if (val2 == 1):
                         transMatrix[i][countNeigh] = pos
                         countNeigh += 1
-                        # transMatrix[pos][place2] = i
+                        transMatrix[pos][place2] = i
             countNum += 1
 
     transMatrix += np.ones((dim, 6))
@@ -185,7 +185,7 @@ model.add(Dropout(0.3))
 
 # model.add(BatchNormalization(axis=1))
 model.add(Dense(matrixDim * lenMapStr,
-                activation='sigmoid', kernel_initializer='glorot_uniform'))
+                activation='softplus', kernel_initializer='glorot_uniform'))
 
 # kernel_initializer='glorot_uniform' 'he_uniform'
 # model = load_model('./nets/net2.h5')

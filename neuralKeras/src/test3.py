@@ -182,23 +182,24 @@ model = Sequential()
 
 model.add(Flatten(input_shape=(quan, quan, 1)))
 # model.add(BatchNormalization(axis=1))
-model.add(Dense(int(matrixDim * 2),
+model.add(Dense(int(matrixDim * 8),
                 activation='relu', kernel_initializer='he_uniform'))
-# model.add(Dropout(0.2))
+model.add(Dropout(0.2))
 # model.add(BatchNormalization(axis=1))
 
-model.add(Dense(int(matrixDim * 2),
+model.add(Dense(int(matrixDim * 8),
                 activation='relu', kernel_initializer='he_uniform'))
+model.add(Dropout(0.2))
 # model.add(BatchNormalization(axis=1))
 
 model.add(Dense(int(matrixDim * 4),
                 activation='relu', kernel_initializer='he_uniform'))
-# model.add(Dropout(0.2))
+model.add(Dropout(0.2))
 # model.add(BatchNormalization(axis=1))
 
 # model.add(Dense(int(matrixDim * lenMapStr),
 #                 activation='softplus', kernel_initializer='glorot_uniform'))
-# model.add(Dropout(0.2))
+model.add(Dropout(0.2))
 # model.add(BatchNormalization(axis=1))
 model.add(Dense(matrixDim * lenMapStr,
                 activation='softplus', kernel_initializer='glorot_uniform'))
@@ -220,12 +221,12 @@ model.add(Dense(matrixDim * lenMapStr,
 # softplus softsign softmax relu sigmoid/hard_sigmoid
 
 # Adadelta Adam sgd
-# poisson mse logcosh mean_squared_logarithmic_error categorical_hinge
+# poisson mse logcosh mean_squared_logarithmic_error categorical_crossentropy categorical_hinge
 # sgd = SGD(lr=0.1, momentum=0.9, nesterov=True)
 sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(loss='mse', optimizer='Adam', metrics=['accuracy'])
 
-history = model.fit(matrixVec, mappingVec, epochs=2000, batch_size=20,
+history = model.fit(matrixVec, mappingVec, epochs=2000, batch_size=50,
                     callbacks=[EarlyStopping(monitor='loss', patience=20)])
 score = model.evaluate(matrixVec, mappingVec, batch_size=50)
 
