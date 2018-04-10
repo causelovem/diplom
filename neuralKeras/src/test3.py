@@ -180,39 +180,39 @@ lam = 0.0001
 
 model = Sequential()
 
-model.add(Flatten(input_shape=(quan, quan, 1)))
-# model.add(BatchNormalization(axis=1))
-model.add(Dense(int(matrixDim * 8),
-                activation='relu', kernel_initializer='he_uniform'))
-model.add(Dropout(0.2))
-# model.add(BatchNormalization(axis=1))
-
-model.add(Dense(int(matrixDim * 8),
-                activation='relu', kernel_initializer='he_uniform'))
-model.add(Dropout(0.2))
-# model.add(BatchNormalization(axis=1))
-
-model.add(Dense(int(matrixDim * 4),
-                activation='relu', kernel_initializer='he_uniform'))
-model.add(Dropout(0.2))
-# model.add(BatchNormalization(axis=1))
-
-# model.add(Dense(int(matrixDim * lenMapStr),
-#                 activation='softplus', kernel_initializer='glorot_uniform'))
-model.add(Dropout(0.2))
-# model.add(BatchNormalization(axis=1))
-model.add(Dense(matrixDim * lenMapStr,
-                activation='softplus', kernel_initializer='glorot_uniform'))
-
 # model.add(Flatten(input_shape=(quan, quan, 1)))
-# model.add(Dense(int(matrixDim * 2),
-#                 activation='sigmoid'))
+# # model.add(BatchNormalization(axis=1))
+# model.add(Dense(int(matrixDim * 8),
+#                 activation='relu', kernel_initializer='he_uniform'))
+# model.add(Dropout(0.2))
+# # model.add(BatchNormalization(axis=1))
 
-# model.add(Dense(int(matrixDim * 2),
-#                 activation='sigmoid'))
+# model.add(Dense(int(matrixDim * 8),
+#                 activation='relu', kernel_initializer='he_uniform'))
+# model.add(Dropout(0.2))
+# # model.add(BatchNormalization(axis=1))
 
+# model.add(Dense(int(matrixDim * 4),
+#                 activation='relu', kernel_initializer='he_uniform'))
+# model.add(Dropout(0.2))
+# # model.add(BatchNormalization(axis=1))
+
+# # model.add(Dense(int(matrixDim * lenMapStr),
+# #                 activation='softplus', kernel_initializer='glorot_uniform'))
+# model.add(Dropout(0.2))
+# # model.add(BatchNormalization(axis=1))
 # model.add(Dense(matrixDim * lenMapStr,
-#                 activation='sigmoid'))
+#                 activation='softplus', kernel_initializer='glorot_uniform'))
+
+model.add(Flatten(input_shape=(quan, quan, 1)))
+model.add(Dense(int(matrixDim * 2),
+                activation='sigmoid'))
+
+model.add(Dense(int(matrixDim * 2),
+                activation='sigmoid'))
+
+model.add(Dense(matrixDim * lenMapStr,
+                activation='sigmoid'))
 
 # kernel_initializer='glorot_uniform' 'he_uniform'
 # model = load_model('./nets/net2.h5')
@@ -226,13 +226,13 @@ model.add(Dense(matrixDim * lenMapStr,
 sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(loss='mse', optimizer='Adam', metrics=['accuracy'])
 
-history = model.fit(matrixVec, mappingVec, epochs=2000, batch_size=50,
+history = model.fit(matrixVec, mappingVec, epochs=100, batch_size=50,
                     callbacks=[EarlyStopping(monitor='loss', patience=20)])
 score = model.evaluate(matrixVec, mappingVec, batch_size=50)
 
 
 model.save('./nets/net1.h5')
-plot_model(model, to_file='model.png', show_shapes=True)
+# plot_model(model, to_file='model.png', show_shapes=True)
 
 
 plt.subplot(211)

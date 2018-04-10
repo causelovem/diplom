@@ -8,7 +8,7 @@ from keras.layers import Dense, Dropout, ZeroPadding2D, AveragePooling2D
 from keras.layers import Conv2D, MaxPooling2D, Flatten, BatchNormalization
 from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
-from keras.utils import plot_model
+# from keras.utils import plot_model
 import matplotlib.pyplot as plt
 from keras.regularizers import l2
 
@@ -226,7 +226,7 @@ score = model.evaluate(matrixVec, mappingVec, batch_size=50)
 
 
 model.save('./nets/net1.h5')
-plot_model(model, to_file='model.png', show_shapes=True)
+# plot_model(model, to_file='model.png', show_shapes=True)
 
 
 plt.subplot(211)

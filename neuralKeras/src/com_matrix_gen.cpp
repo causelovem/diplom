@@ -49,21 +49,27 @@ int main(int argc, char const *argv[])
             matix[i][j] = (int)(rand()) % rnd;
     }*/
 
-    for (int i = 0; i < num; i++)
-        for (int j = 0; j < num; j++)
-            matix[i][j] = (int)(rand());
+    // for (int i = 0; i < num; i++)
+    //     for (int j = 0; j < num; j++)
+    //         matix[i][j] = (int)(rand());
+
+    for (int i = 0; i < num - 1; i++)
+    {
+        matix[i][i + 1] = (int)(rand());
+        matix[i + 1][i] = (int)(rand());
+    }
 
 
     //int rnd_num = (int)(rand()) % num;
-    int rnd_num = num;
-    for (int i = 0; i < rnd_num; i++)
-    {
-        for (int j = 0; j < rnd_num; j++)
-        {
-            int rnd_i = (int)(rand()) % num, rnd_j = (int)(rand()) % num;
-            matix[rnd_i][rnd_j] = 0;
-        }
-    }
+    // int rnd_num = num;
+    // for (int i = 0; i < rnd_num; i++)
+    // {
+    //     for (int j = 0; j < rnd_num; j++)
+    //     {
+    //         int rnd_i = (int)(rand()) % num, rnd_j = (int)(rand()) % num;
+    //         matix[rnd_i][rnd_j] = 0;
+    //     }
+    // }
 
 
     for (int i = 0; i < num; i++)

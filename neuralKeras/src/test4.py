@@ -145,8 +145,8 @@ for file in mappingFiles:
         mapping[i] = mapping[i][:-1].split(' ')
         strDim = len(mapping[i])
         for j in range(strDim):
-            mapping[i][j] = int(mapping[i][j]) * step
-            # mapping[i][j] = int(mapping[i][j]) / 10
+            # mapping[i][j] = int(mapping[i][j]) * step
+            mapping[i][j] = int(mapping[i][j]) / 10
             # mapping[i][j] = int(mapping[i][j]) / max
             # mapping[i][j] = int(mapping[i][j])
     tmp = np.array(mapping)
@@ -199,7 +199,7 @@ sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(loss='mse', optimizer='Adam', metrics=['accuracy'])
 
 history = model.fit(matrixVec, mappingVec, epochs=500, batch_size=50,
-                    callbacks=[EarlyStopping(monitor='loss', patience=40)])
+                    callbacks=[EarlyStopping(monitor='loss', patience=10)])
 
 # history = model.fit(matrixVec, mappingVec, epochs=300, batch_size=50)
 score = model.evaluate(matrixVec, mappingVec, batch_size=50)
@@ -258,8 +258,8 @@ for i in range(len(matrixVec)):
     for j in range(matrixDim):
         for k in range(lenMapStr):
             if (abs(pred[0][j * lenMapStr + k] - 0) > 0.001):
-                tmp = int(round(pred[0][j * lenMapStr + k] / step))
-                # tmp = int(round(pred[0][j * lenMapStr + k] * 10))
+                # tmp = int(round(pred[0][j * lenMapStr + k] / step))
+                tmp = int(round(pred[0][j * lenMapStr + k] * 10))
                 # tmp = int(round(pred[0][j * lenMapStr + k] * max))
                 # tmp = int(round(pred[0][j * lenMapStr + k]))
                 if (tmp > max - 1):
