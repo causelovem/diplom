@@ -41,7 +41,7 @@ persent = -1
 print('> Readind matrix data...')
 for file in matrixFiles:
     persent += 1
-    print(str(persent * 100 / len(matrixFiles)) + '%', end='')
+    print(str(round(persent * 100 / len(matrixFiles), 1)) + '%', end='')
     print('\r', end='')
 
     fileIn = open("./matrix/" + file, "r")
@@ -122,7 +122,7 @@ persent = -1
 print('> Readind mapping data...')
 for file in mappingFiles:
     persent += 1
-    print(str(persent * 100 / len(mappingFiles)) + '%', end='')
+    print(str(round(persent * 100 / len(mappingFiles), 1)) + '%', end='')
     print('\r', end='')
 
     fileIn = open("./mapping/" + file, "r")
@@ -163,29 +163,29 @@ lenMapStr = 4
 model = Sequential()
 
 model.add(Flatten(input_shape=(matrixDim, 6, 1)))
-# model.add(BatchNormalization(axis=1))
+model.add(BatchNormalization(axis=1))
 model.add(Dense(int(matrixDim * 8),
-                activation='relu', kernel_initializer='he_uniform'))
+                activation='relu'))
 model.add(Dropout(0.3))
 
-# model.add(BatchNormalization(axis=1))
+model.add(BatchNormalization(axis=1))
 model.add(Dense(int(matrixDim * 6),
-                activation='relu', kernel_initializer='he_uniform'))
+                activation='relu'))
 model.add(Dropout(0.3))
 
-# model.add(BatchNormalization(axis=1))
+model.add(BatchNormalization(axis=1))
 model.add(Dense(int(matrixDim * 4),
-                activation='relu', kernel_initializer='he_uniform'))
+                activation='relu'))
 model.add(Dropout(0.3))
 
-# model.add(BatchNormalization(axis=1))
+model.add(BatchNormalization(axis=1))
 model.add(Dense(int(matrixDim * 4),
-                activation='relu', kernel_initializer='he_uniform'))
+                activation='relu'))
 model.add(Dropout(0.3))
 
-# model.add(BatchNormalization(axis=1))
+model.add(BatchNormalization(axis=1))
 model.add(Dense(matrixDim * lenMapStr,
-                activation='softplus', kernel_initializer='glorot_uniform'))
+                activation='softplus'))
 
 # kernel_initializer='glorot_uniform' 'he_uniform'
 # model = load_model('./nets/net2.h5')
@@ -233,7 +233,7 @@ persent = -1
 print('> Predict on trannig data...')
 for i in range(len(matrixVec)):
     persent += 1
-    print(str(persent * 100 / len(matrixVec)) + '%', end='')
+    print(str(round(persent * 100 / len(matrixVec), 1)) + '%', end='')
     print('\r', end='')
 
     pred = model.predict(matrixVec[i:i + 1])

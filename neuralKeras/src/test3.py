@@ -25,7 +25,7 @@ weig = [4.04, 0.78, 0.46, 0.42, 0.41, 0.32]
 print('> Readind matrix data...')
 for file in matrixFiles:
     persent += 1
-    print(str(persent * 100 / len(matrixFiles)) + '%', end='')
+    print(str(round(persent * 100 / len(matrixFiles), 1)) + '%', end='')
     print('\r', end='')
 
     fileIn = open("./matrix/" + file, "r")
@@ -205,12 +205,19 @@ model = Sequential()
 #                 activation='softplus', kernel_initializer='glorot_uniform'))
 
 model.add(Flatten(input_shape=(quan, quan, 1)))
-model.add(Dense(int(matrixDim * 2),
-                activation='sigmoid'))
+model.add(BatchNormalization(axis=1))
+model.add(Dense(int(matrixDim * 4),
+                activation='relu'))
 
-model.add(Dense(int(matrixDim * 2),
-                activation='sigmoid'))
+model.add(BatchNormalization(axis=1))
+model.add(Dense(int(matrixDim * 4),
+                activation='relu'))
 
+model.add(BatchNormalization(axis=1))
+model.add(Dense(int(matrixDim * 4),
+                activation='relu'))
+
+model.add(BatchNormalization(axis=1))
 model.add(Dense(matrixDim * lenMapStr,
                 activation='sigmoid'))
 
@@ -259,7 +266,7 @@ persent = -1
 print('> Predict on trannig data...')
 for i in range(len(matrixVec)):
     persent += 1
-    print(str(persent * 100 / len(matrixFiles)) + '%', end='')
+    print(str(round(persent * 100 / len(matrixVec), 1)) + '%', end='')
     print('\r', end='')
 
     pred = model.predict(matrixVec[i:i + 1])

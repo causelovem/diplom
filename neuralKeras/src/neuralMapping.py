@@ -23,7 +23,7 @@ persent = -1
 print('> Readind matrix data...')
 for file in matrixFiles:
     persent += 1
-    print(str(persent * 100 / len(matrixFiles)) + '%', end='')
+    print(str(round(persent * 100 / len(matrixFiles), 1)) + '%', end='')
     print('\r', end='')
 
     fileIn = open("./matrix/" + file, "r")
@@ -254,7 +254,7 @@ persent = -1
 print('> Predict on trannig data...')
 for i in range(len(matrixVec)):
     persent += 1
-    print(str(persent * 100 / len(matrixFiles)) + '%', end='')
+    print(str(round(persent * 100 / len(matrixVec), 1)) + '%', end='')
     print('\r', end='')
 
     pred = model.predict(matrixVec[i:i + 1])
