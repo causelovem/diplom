@@ -15,6 +15,7 @@ matrixFiles = os.listdir("./pred/matrix")
 matrixFiles.sort(key=lambda x: int(x[6:]))
 
 quan = 16
+weig = [4.04, 0.78, 0.46, 0.42, 0.41, 0.32]
 print('> Readind matrix data...')
 for file in matrixFiles:
     fileIn = open("./pred/matrix/" + file, "r")
@@ -76,7 +77,7 @@ for file in matrixFiles:
 
     for i in range(quan):
         for j in range(quan):
-            sque[i][j] *= min(max(math.log(i + 1, 2), math.log(j + 1, 2)), 5)
+            sque[i][j] *= weig[int(min(max(math.log(i + 1, 2), math.log(j + 1, 2)), 5))]
 
     # for i in range(dim):
     #     matrix[i] = matrix[i][:-2].split(' ')
@@ -153,7 +154,8 @@ for file in mappingFiles:
         strDim = len(mapping[i])
         for j in range(strDim):
             # mapping[i][j] = int(mapping[i][j]) * step
-            mapping[i][j] = int(mapping[i][j]) / 10
+            # mapping[i][j] = int(mapping[i][j]) / 10
+            mapping[i][j] = int(mapping[i][j]) / max
             # mapping[i][j] = int(mapping[i][j])
     tmp = np.array(mapping)
     mappingList.append(tmp)
@@ -168,9 +170,9 @@ mappingVec = mappingVec.reshape(numOfSet, matrixDim * 4)
 print('> Preparing for prediction...')
 lenMapStr = 4
 model = Sequential()
-# model = load_model('./nets/net1.h5')
+model = load_model('./nets/net1.h5')
 # model = load_model('./nets/net2.h5')
-model = load_model('./nets/netnet.h5')
+# model = load_model('./nets/netnet.h5')
 # plot_model(model, to_file='model.png')
 
 # max = 0
@@ -209,7 +211,8 @@ for i in range(len(matrixVec)):
         for k in range(lenMapStr):
             if (abs(pred[0][j * lenMapStr + k] - 0) > 0.001):
                 # tmp = int(round(pred[0][j * lenMapStr + k] / step))
-                tmp = int(round(pred[0][j * lenMapStr + k] * 10))
+                # tmp = int(round(pred[0][j * lenMapStr + k] * 10))
+                tmp = int(round(pred[0][j * lenMapStr + k] * max))
                 # tmp = int(round(pred[0][j * lenMapStr + k]))
                 if (tmp > max - 1):
                     fileOut.write(str(int(0)) + ' ')

@@ -9,7 +9,7 @@ from keras.layers import Dense, Dropout, ZeroPadding2D, AveragePooling2D
 from keras.layers import Conv2D, MaxPooling2D, Flatten, BatchNormalization
 from keras.callbacks import EarlyStopping
 from keras.optimizers import SGD
-from keras.utils import plot_model
+from keras.utils import plot_model, normalize
 import matplotlib.pyplot as plt
 from keras.regularizers import l2
 
@@ -38,17 +38,17 @@ for file in matrixFiles:
         for j in range(len(matrix[i])):
             matrix[i][j] = int(matrix[i][j])
 
-        # pairList = []
-        # for j in range(dim):
-        #     pairList.append((j, int(matrix[i][j])))
+        pairList = []
+        for j in range(dim):
+            pairList.append((j, int(matrix[i][j])))
 
-        # pairList.sort(key=lambda x: x[1])
+        pairList.sort(key=lambda x: x[1])
 
-        # for j in range(dim):
-        #     if (pairList[j][1] == 0):
-        #         matrix[i][pairList[j][0]] = 0
-        #     else:
-        #         matrix[i][pairList[j][0]] = j + 1
+        for j in range(dim):
+            if (pairList[j][1] == 0):
+                matrix[i][pairList[j][0]] = 0
+            else:
+                matrix[i][pairList[j][0]] = j + 1
 
     block = dim // quan
     sque = []
@@ -87,7 +87,7 @@ for file in matrixFiles:
 
     for i in range(quan):
         for j in range(quan):
-            sque[i][j] *= min(max(math.log(i + 1, 2), math.log(j + 1, 2)), 5)
+            sque[i][j] *= weig[int(min(max(math.log(i + 1, 2), math.log(j + 1, 2)), 5))]
 
     # for i in range(dim):
     #     matrix[i] = matrix[i][:-2].split(' ')
@@ -120,6 +120,8 @@ matrixVec = np.array(matrixList)
 # matrixDim = int(matrixVec.shape[1])
 matrixDim = 256
 numOfSet = int(matrixVec.shape[0])
+
+# matrixVec = normalize(matrixVec, 2)
 
 # print(matrixVec.shape)
 
@@ -164,7 +166,8 @@ for file in mappingFiles:
         strDim = len(mapping[i])
         for j in range(strDim):
             # mapping[i][j] = int(mapping[i][j]) * step
-            mapping[i][j] = int(mapping[i][j]) / 10
+            # mapping[i][j] = int(mapping[i][j]) / 10
+            mapping[i][j] = int(mapping[i][j]) / max
             # mapping[i][j] = int(mapping[i][j])
     tmp = np.array(mapping)
     mappingList.append(tmp)
@@ -174,9 +177,12 @@ for file in mappingFiles:
 mappingVec = np.array(mappingList)
 mappingVec = mappingVec.reshape(numOfSet, 256 * 4)
 
+# mappingVec = normalize(mappingVec, 1)
+
 print('> Preparing for train...')
 lenMapStr = 4
 lam = 0.0001
+# kernel_regularizer=l2(lam)
 
 model = Sequential()
 
@@ -205,17 +211,26 @@ model = Sequential()
 #                 activation='softplus', kernel_initializer='glorot_uniform'))
 
 model.add(Flatten(input_shape=(quan, quan, 1)))
-model.add(BatchNormalization(axis=1))
-model.add(Dense(int(matrixDim * 4),
-                activation='relu'))
 
 model.add(BatchNormalization(axis=1))
 model.add(Dense(int(matrixDim * 4),
                 activation='relu'))
+# model.add(Dropout(0.3))
 
 model.add(BatchNormalization(axis=1))
 model.add(Dense(int(matrixDim * 4),
                 activation='relu'))
+# model.add(Dropout(0.3))
+
+# model.add(BatchNormalization(axis=1))
+# model.add(Dense(int(matrixDim * 4),
+#                 activation='relu'))
+# # model.add(Dropout(0.3))
+
+# model.add(BatchNormalization(axis=1))
+# model.add(Dense(int(matrixDim * 4),
+#                 activation='relu'))
+# model.add(Dropout(0.5))
 
 model.add(BatchNormalization(axis=1))
 model.add(Dense(matrixDim * lenMapStr,
@@ -230,22 +245,32 @@ model.add(Dense(matrixDim * lenMapStr,
 # Adadelta Adam sgd
 # poisson mse logcosh mean_squared_logarithmic_error categorical_crossentropy categorical_hinge
 # sgd = SGD(lr=0.1, momentum=0.9, nesterov=True)
+xVal = matrixVec[int(numOfSet * 0.8):]
+yVal = mappingVec[int(numOfSet * 0.8):]
+
+xTrain = matrixVec[:int(numOfSet * 0.8)]
+yTrain = mappingVec[:int(numOfSet * 0.8)]
+
 sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(loss='mse', optimizer='Adam', metrics=['accuracy'])
 
-history = model.fit(matrixVec, mappingVec, epochs=100, batch_size=50,
-                    callbacks=[EarlyStopping(monitor='loss', patience=20)])
-score = model.evaluate(matrixVec, mappingVec, batch_size=50)
+# history = model.fit(matrixVec, mappingVec, epochs=50, batch_size=50,
+#                     callbacks=[EarlyStopping(monitor='loss', patience=5)])
+# score = model.evaluate(matrixVec, mappingVec, batch_size=50)
+history = model.fit(xTrain, yTrain, epochs=350, batch_size=50,
+                    validation_data=(xVal, yVal),
+                    callbacks=[EarlyStopping(monitor='val_loss', patience=20)])
+score = model.evaluate(xTrain, yTrain, batch_size=50)
 
 
 model.save('./nets/net1.h5')
-# plot_model(model, to_file='model.png', show_shapes=True)
+plot_model(model, to_file='model.png', show_shapes=True)
 
 
 plt.subplot(211)
 plt.plot(history.history['acc'])
-# plt.plot(history.history['val_acc'])
-plt.title('model accuracy')
+plt.plot(history.history['val_acc'])
+plt.title('model accuracy/loss')
 plt.ylabel('accuracy')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
@@ -253,8 +278,8 @@ plt.legend(['train', 'test'], loc='upper left')
 # summarize history for loss
 plt.subplot(212)
 plt.plot(history.history['loss'])
-# plt.plot(history.history['val_loss'])
-plt.title('model loss')
+plt.plot(history.history['val_loss'])
+# plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
 plt.legend(['train', 'test'], loc='upper left')
@@ -292,7 +317,8 @@ for i in range(len(matrixVec)):
         for k in range(lenMapStr):
             if (abs(pred[0][j * lenMapStr + k] - 0) > 0.001):
                 # tmp = int(round(pred[0][j * lenMapStr + k] / step))
-                tmp = int(round(pred[0][j * lenMapStr + k] * 10))
+                # tmp = int(round(pred[0][j * lenMapStr + k] * 10))
+                tmp = int(round(pred[0][j * lenMapStr + k] * max))
                 # tmp = int(round(pred[0][j * lenMapStr + k]))
                 if (tmp > max - 1):
                     fileOut.write(str(int(0)) + ' ')

@@ -13,8 +13,14 @@ matrixList = []
 matrixFiles = os.listdir("./pred/matrix")
 matrixFiles.sort(key=lambda x: int(x[6:]))
 
+persent = -1
+weig = [4.04, 0.78, 0.46, 0.42, 0.41, 0.32]
 print('> Readind matrix data...')
 for file in matrixFiles:
+    persent += 1
+    print(str(round(persent * 100 / len(matrixFiles), 1)) + '%', end='')
+    print('\r', end='')
+
     fileIn = open("./pred/matrix/" + file, "r")
 
     matrix = fileIn.readlines()
@@ -36,6 +42,32 @@ for file in matrixFiles:
                 matrix[i][pairList[j][0]] = 0
             else:
                 matrix[i][pairList[j][0]] = j + 1
+
+    # for i in range(dim):
+    #     size = dim
+    #     while size > 1:
+    #         size //= 2
+    #         tmp = []
+    #         for j in range(size):
+    #             matrix[i][j] = (matrix[i][2 * j] + matrix[i][2 * j + 1]) / 2
+    #             tmp.append(matrix[i][j] - matrix[i][2 * j + 1])
+    #         for j in range(len(tmp)):
+    #             matrix[i][j + size] = tmp[j]
+
+    # for i in range(dim):
+    #     size = dim
+    #     while size > 1:
+    #         size //= 2
+    #         tmp = []
+    #         for j in range(size):
+    #             matrix[j][i] = (matrix[2 * j][i] + matrix[2 * j + 1][i]) / 2
+    #             tmp.append(matrix[j][i] - matrix[2 * j + 1][i])
+    #         for j in range(len(tmp)):
+    #             matrix[j + size][i] = tmp[j]
+
+    # for i in range(dim):
+    #     for j in range(dim):
+    #         matrix[i][j] *= weig[min(max(math.log(i + 1, 2), math.log(j + 1, 2)), 5)]
 
     tmp = np.array(matrix)
     tmp = np.expand_dims(tmp, axis=2)
@@ -120,10 +152,15 @@ model = load_model('./nets/net1.h5')
 #     max = 16
 
 
+persent = -1
 print('> Predict on test data...')
 for i in range(len(matrixVec)):
+    persent += 1
+    print(str(round(persent * 100 / len(matrixVec), 1)) + '%', end='')
+    print('\r', end='')
+
     pred = model.predict(matrixVec[i:i + 1])
-    print("./pred/prediction/mapping" + str(i + 1) + "Pred")
+    # print("./pred/prediction/mapping" + str(i + 1) + "Pred")
     # print(pred)
     fileOut = open("./pred/prediction/mapping" + str(i + 1) + "Pred", "w")
 

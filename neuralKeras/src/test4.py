@@ -146,8 +146,8 @@ for file in mappingFiles:
         strDim = len(mapping[i])
         for j in range(strDim):
             # mapping[i][j] = int(mapping[i][j]) * step
-            mapping[i][j] = int(mapping[i][j]) / 10
-            # mapping[i][j] = int(mapping[i][j]) / max
+            # mapping[i][j] = int(mapping[i][j]) / 10
+            mapping[i][j] = int(mapping[i][j]) / max
             # mapping[i][j] = int(mapping[i][j])
     tmp = np.array(mapping)
     mappingList.append(tmp)
@@ -164,28 +164,28 @@ model = Sequential()
 
 model.add(Flatten(input_shape=(matrixDim, 6, 1)))
 model.add(BatchNormalization(axis=1))
-model.add(Dense(int(matrixDim * 8),
+model.add(Dense(int(matrixDim * 2),
                 activation='relu'))
-model.add(Dropout(0.3))
+# model.add(Dropout(0.3))
 
 model.add(BatchNormalization(axis=1))
-model.add(Dense(int(matrixDim * 6),
+model.add(Dense(int(matrixDim * 2),
                 activation='relu'))
-model.add(Dropout(0.3))
-
-model.add(BatchNormalization(axis=1))
-model.add(Dense(int(matrixDim * 4),
-                activation='relu'))
-model.add(Dropout(0.3))
+# model.add(Dropout(0.3))
 
 model.add(BatchNormalization(axis=1))
 model.add(Dense(int(matrixDim * 4),
                 activation='relu'))
-model.add(Dropout(0.3))
+# model.add(Dropout(0.3))
+
+# model.add(BatchNormalization(axis=1))
+# model.add(Dense(int(matrixDim * 4),
+#                 activation='relu'))
+# model.add(Dropout(0.3))
 
 model.add(BatchNormalization(axis=1))
 model.add(Dense(matrixDim * lenMapStr,
-                activation='softplus'))
+                activation='sigmoid'))
 
 # kernel_initializer='glorot_uniform' 'he_uniform'
 # model = load_model('./nets/net2.h5')
@@ -195,14 +195,22 @@ model.add(Dense(matrixDim * lenMapStr,
 # Adadelta Adam sgd
 # poisson mse logcosh mean_squared_logarithmic_error categorical_hinge
 # sgd = SGD(lr=0.1, momentum=0.9, nesterov=True)
+xVal = matrixVec[int(numOfSet * 0.8):]
+yVal = mappingVec[int(numOfSet * 0.8):]
+
+xTrain = matrixVec[:int(numOfSet * 0.8)]
+yTrain = mappingVec[:int(numOfSet * 0.8)]
+
 sgd = SGD(lr=0.1, decay=1e-6, momentum=0.9, nesterov=True)
 model.compile(loss='mse', optimizer='Adam', metrics=['accuracy'])
 
-history = model.fit(matrixVec, mappingVec, epochs=500, batch_size=50,
-                    callbacks=[EarlyStopping(monitor='loss', patience=10)])
-
-# history = model.fit(matrixVec, mappingVec, epochs=300, batch_size=50)
-score = model.evaluate(matrixVec, mappingVec, batch_size=50)
+# history = model.fit(matrixVec, mappingVec, epochs=50, batch_size=50,
+#                     callbacks=[EarlyStopping(monitor='loss', patience=5)])
+# score = model.evaluate(matrixVec, mappingVec, batch_size=50)
+history = model.fit(xTrain, yTrain, epochs=50, batch_size=50,
+                    validation_data=(xVal, yVal),
+                    callbacks=[EarlyStopping(monitor='val_loss', patience=10)])
+score = model.evaluate(xTrain, yTrain, batch_size=50)
 
 
 model.save('./nets/net1.h5')
@@ -211,7 +219,7 @@ plot_model(model, to_file='model.png', show_shapes=True)
 
 plt.subplot(211)
 plt.plot(history.history['acc'])
-# plt.plot(history.history['val_acc'])
+plt.plot(history.history['val_acc'])
 plt.title('model accuracy/loss')
 plt.ylabel('accuracy')
 plt.xlabel('epoch')
@@ -220,7 +228,7 @@ plt.legend(['train', 'test'], loc='upper left')
 # summarize history for loss
 plt.subplot(212)
 plt.plot(history.history['loss'])
-# plt.plot(history.history['val_loss'])
+plt.plot(history.history['val_loss'])
 # plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
@@ -259,8 +267,8 @@ for i in range(len(matrixVec)):
         for k in range(lenMapStr):
             if (abs(pred[0][j * lenMapStr + k] - 0) > 0.001):
                 # tmp = int(round(pred[0][j * lenMapStr + k] / step))
-                tmp = int(round(pred[0][j * lenMapStr + k] * 10))
-                # tmp = int(round(pred[0][j * lenMapStr + k] * max))
+                # tmp = int(round(pred[0][j * lenMapStr + k] * 10))
+                tmp = int(round(pred[0][j * lenMapStr + k] * max))
                 # tmp = int(round(pred[0][j * lenMapStr + k]))
                 if (tmp > max - 1):
                     fileOut.write(str(int(0)) + ' ')

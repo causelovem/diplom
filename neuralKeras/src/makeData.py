@@ -22,34 +22,34 @@ matrixDim = int(sys.argv[4])
 numOfPred = int(sys.argv[6])
 
 for i in range(numOfTest):
-    com = './bin/com_matrix_gen {}{}{} {}'.format(
-        sys.argv[1], "/matrix", i + 1, matrixDim)
+    com = './bin/com_matrix_class_gen {}{}{} {} {}{}{}'.format(
+        sys.argv[1], "/matrix", i + 1, matrixDim, sys.argv[2], "/mapping", i + 1)
 
     print(com)
     command(com)
 
-    com = './bin/greedy {}{}{} {} '.format(
-        sys.argv[1], "/matrix", i + 1, matrixDim)
-    com += '{}{}{}'.format(sys.argv[2], "/mapping", i + 1)
+    # com = './bin/greedy {}{}{} {} '.format(
+    #     sys.argv[1], "/matrix", i + 1, matrixDim)
+    # com += '{}{}{}'.format(sys.argv[2], "/mapping", i + 1)
 
-    print(com)
-    command(com)
+    # print(com)
+    # command(com)
 
     time.sleep(1)
 
 
 for i in range(numOfPred):
-    com = './bin/com_matrix_gen {}{}{}{} {}'.format(
-        sys.argv[5], "/matrix", "/matrix", i + 1, matrixDim)
+    com = './bin/com_matrix_class_gen {}{}{}{} {} {}{}{}{}'.format(
+        sys.argv[5], "/matrix", "/matrix", i + 1, matrixDim, sys.argv[5], "/test", "/mapping", i + 1)
 
     print(com)
     command(com)
 
-    com = './bin/greedy {}{}{}{} {} '.format(
-        sys.argv[5], "/matrix", "/matrix", i + 1, matrixDim)
-    com += '{}{}{}{}'.format(sys.argv[5], "/test", "/mapping", i + 1)
+    # com = './bin/greedy {}{}{}{} {} '.format(
+    #     sys.argv[5], "/matrix", "/matrix", i + 1, matrixDim)
+    # com += '{}{}{}{}'.format(sys.argv[5], "/test", "/mapping", i + 1)
 
-    print(com)
-    command(com)
+    # print(com)
+    # command(com)
 
     time.sleep(1)

@@ -38,7 +38,7 @@ quan = 16
 print('> Readind matrix data...')
 for file in matrixFiles:
     persent += 1
-    print(str(persent * 100 / len(matrixFiles)) + '%', end='')
+    print(str(round(persent * 100 / len(matrixFiles), 1)) + '%', end='')
     print('\r', end='')
 
     fileIn = open("./pred/matrix/" + file, "r")
@@ -76,6 +76,8 @@ for file in matrixFiles:
                         countNeigh += 1
                         transMatrix[pos][place2] = i
             countNum += 1
+
+    transMatrix += np.ones((dim, 6))
 
     # tmp = np.array(matrix)
     tmp = transMatrix
@@ -135,8 +137,8 @@ for file in mappingFiles:
         strDim = len(mapping[i])
         for j in range(strDim):
             # mapping[i][j] = int(mapping[i][j]) * step
-            mapping[i][j] = int(mapping[i][j]) / 10
-            # mapping[i][j] = int(mapping[i][j]) / max
+            # mapping[i][j] = int(mapping[i][j]) / 10
+            mapping[i][j] = int(mapping[i][j]) / (max - 1)
             # mapping[i][j] = int(mapping[i][j])
     tmp = np.array(mapping)
     mappingList.append(tmp)
@@ -170,7 +172,7 @@ persent = -1
 print('> Predict on test data...')
 for i in range(len(matrixVec)):
     persent += 1
-    print(str(persent * 100 / len(matrixVec)) + '%', end='')
+    print(str(round(persent * 100 / len(matrixVec), 1)) + '%', end='')
     print('\r', end='')
 
     pred = model.predict(matrixVec[i:i + 1])
@@ -196,8 +198,8 @@ for i in range(len(matrixVec)):
         for k in range(lenMapStr):
             if (abs(pred[0][j * lenMapStr + k] - 0) > 0.001):
                 # tmp = int(round(pred[0][j * lenMapStr + k] / step))
-                tmp = int(round(pred[0][j * lenMapStr + k] * 10))
-                # tmp = int(round(pred[0][j * lenMapStr + k] * max))
+                # tmp = int(round(pred[0][j * lenMapStr + k] * 10))
+                tmp = int(round(pred[0][j * lenMapStr + k] * (max - 1)))
                 # tmp = int(round(pred[0][j * lenMapStr + k]))
                 if (tmp > max - 1):
                     fileOut.write(str(int(0)) + ' ')

@@ -1,5 +1,6 @@
 GREEDY_FILE = src/greedy
 COM_MATRIX_GEN = src/com_matrix_gen
+COM_MATRIX_CLASS_GEN = src/com_matrix_class_gen
 CHECK_PROG = src/prog_test
 BUILD_MATRIX = src/build_matrix
 BUILD_RAND_SEND = src/build_rand_send
@@ -9,10 +10,10 @@ CXX = g++
 CXXFLAGS = -g -O0 -Wall
 
 MATRIX_DIM = 256
-MATRIX_NUMBER = 300
-TEST_NUMBER = 30
+MATRIX_NUMBER = 7000
+TEST_NUMBER = 700
 
-all: $(COM_MATRIX_GEN) $(GREEDY_FILE) $(BUILD_MATRIX) $(BUILD_RAND_SEND) $(CHECK_PROG)
+all: $(COM_MATRIX_GEN) $(COM_MATRIX_CLASS_GEN) $(GREEDY_FILE) $(BUILD_MATRIX) $(BUILD_RAND_SEND) $(CHECK_PROG)
  
 neuralTrain: $(NEURAL_MAPPING)
 
@@ -102,6 +103,9 @@ $(GREEDY_FILE): $(GREEDY_FILE).cpp
 
 $(COM_MATRIX_GEN): $(COM_MATRIX_GEN).cpp
 	$(CXX) $(CXXFLAGS) $(COM_MATRIX_GEN).cpp -o bin/com_matrix_gen
+
+$(COM_MATRIX_CLASS_GEN): $(COM_MATRIX_CLASS_GEN).cpp
+	$(CXX) $(CXXFLAGS) $(COM_MATRIX_CLASS_GEN).cpp -o bin/com_matrix_class_gen
 
 $(BUILD_MATRIX): $(BUILD_MATRIX).cpp
 	$(CXX) $(CXXFLAGS) $(BUILD_MATRIX).cpp -o bin/build_matrix

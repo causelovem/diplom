@@ -33,11 +33,14 @@ X_test = X_test.reshape(X_test.shape[0], height, width, depth)
 X_train = X_train.astype('float32')
 X_test = X_test.astype('float32')
 
+print(y_train[0])
 Y_train = np_utils.to_categorical(
     y_train, num_classes)  # One-hot encode the labels
 Y_test = np_utils.to_categorical(
     y_test, num_classes)  # One-hot encode the labels
 
+print(Y_train[0])
+sys.exit(0)
 # Explicitly split the training and validation sets
 X_val = X_train[54000:]
 Y_val = Y_train[54000:]

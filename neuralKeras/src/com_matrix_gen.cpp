@@ -55,9 +55,14 @@ int main(int argc, char const *argv[])
 
     for (int i = 0; i < num - 1; i++)
     {
-        matix[i][i + 1] = (int)(rand());
-        matix[i + 1][i] = (int)(rand());
+        // matix[i][i + 1] = (int)(rand());
+        // matix[i + 1][i] = (int)(rand());
+
+        matix[i][num - 2 - i] = (int)(rand());
+        matix[num - 1 - i][i + 1] = (int)(rand());
+        matix[i][num - 1 - i] = (int)(rand());
     }
+    matix[num - 1][0] = (int)(rand());
 
 
     //int rnd_num = (int)(rand()) % num;
