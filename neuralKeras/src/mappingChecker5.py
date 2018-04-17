@@ -18,11 +18,11 @@ for i in range(len(mappingFiles)):
     mappingTrue = int(fileInTrue.readline()[:-1])
 
     if (mapping == mappingTrue):
-        msg = 'Map file {}: OK!'.format(mappingFiles[i])
+        msg = '> Map file {}: OK!'.format(mappingFiles[i])
         print(msg)
         ok += 1
     else:
-        err = 'Map file {}: ERROR!'.format(mappingFiles[i])
+        err = '> Map file {}: ERROR!'.format(mappingFiles[i])
         print(err)
         error += 1
 
@@ -30,5 +30,6 @@ for i in range(len(mappingFiles)):
 
     fileIn.close()
 
-res = '{} OKs and {} ERRORs out of {} files'.format(ok, error, len(mappingFiles))
+print('')
+res = '> {} OKs and {} ERRORs out of {} files'.format(ok, error, len(mappingFiles))
 print(res)

@@ -106,78 +106,79 @@ model = Sequential()
 # input_shape=(matrixDim, matrixDim, 1)
 
 # model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(BatchNormalization(axis=3, input_shape=(matrixDim, matrixDim, 1)))
+# model.add(BatchNormalization(axis=3, input_shape=(matrixDim, matrixDim, 1)))
 model.add(Conv2D(numFilt, (convSize, convSize), padding='same',
-                 activation='relu'))
+                 activation='relu', input_shape=(matrixDim, matrixDim, 1)))
 # model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(BatchNormalization(axis=3))
+# model.add(BatchNormalization(axis=3))
 model.add(Conv2D(numFilt, (convSize, convSize), padding='same',
                  activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(MaxPooling2D(pool_size=(4, 4)))
 # model.add(Dropout(0.25))
 
 # model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(BatchNormalization(axis=3))
+# model.add(BatchNormalization(axis=3))
 model.add(Conv2D(numFilt * 2, (convSize, convSize), padding='same',
                  activation='relu'))
 # model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(BatchNormalization(axis=3))
+# model.add(BatchNormalization(axis=3))
 model.add(Conv2D(numFilt * 2, (convSize, convSize), padding='same',
                  activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(MaxPooling2D(pool_size=(4, 4)))
 # model.add(Dropout(0.25))
 
 # model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(BatchNormalization(axis=3))
+# model.add(BatchNormalization(axis=3))
 model.add(Conv2D(numFilt * 4, (convSize, convSize), padding='same',
                  activation='relu'))
 # model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(BatchNormalization(axis=3))
-model.add(Conv2D(numFilt * 4, (convSize, convSize), padding='same',
-                 activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
-# model.add(Dropout(0.25))
-
-# model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(BatchNormalization(axis=3))
-model.add(Conv2D(numFilt * 4, (convSize, convSize), padding='same',
-                 activation='relu'))
-# model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(BatchNormalization(axis=3))
+# model.add(BatchNormalization(axis=3))
 model.add(Conv2D(numFilt * 4, (convSize, convSize), padding='same',
                  activation='relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.25))
 
 # model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(BatchNormalization(axis=3))
-model.add(Conv2D(numFilt * 4, (convSize, convSize), padding='same',
-                 activation='relu'))
+# model.add(BatchNormalization(axis=3))
+# model.add(Conv2D(numFilt * 4, (convSize, convSize), padding='same',
+#                  activation='relu'))
 # # model.add(ZeroPadding2D((paddSize, paddSize)))
-model.add(BatchNormalization(axis=3))
-model.add(Conv2D(numFilt * 4, (convSize, convSize), padding='same',
-                 activation='relu'))
-model.add(MaxPooling2D(pool_size=(2, 2)))
+# # model.add(BatchNormalization(axis=3))
+# model.add(Conv2D(numFilt * 4, (convSize, convSize), padding='same',
+#                  activation='relu'))
+# model.add(MaxPooling2D(pool_size=(2, 2)))
+# model.add(Dropout(0.25))
+
+# model.add(ZeroPadding2D((paddSize, paddSize)))
+# model.add(BatchNormalization(axis=3))
+# model.add(Conv2D(numFilt * 4, (convSize, convSize), padding='same',
+#                  activation='relu'))
+# # # model.add(ZeroPadding2D((paddSize, paddSize)))
+# # model.add(BatchNormalization(axis=3))
+# model.add(Conv2D(numFilt * 4, (convSize, convSize), padding='same',
+#                  activation='relu'))
+# model.add(MaxPooling2D(pool_size=(2, 2)))
 # model.add(AveragePooling2D(pool_size=(2, 2)))
 # model.add(Dropout(0.25))
 
 model.add(Flatten())
 
-model.add(BatchNormalization(axis=1))
+# model.add(BatchNormalization(axis=1))
 model.add(Dense(200,
                 activation='relu'))
 # model.add(Dropout(0.5))
 
-model.add(BatchNormalization(axis=1))
+# model.add(BatchNormalization(axis=1))
 model.add(Dense(200,
                 activation='relu'))
 # model.add(Dropout(0.5))
 
-model.add(BatchNormalization(axis=1))
-model.add(Dense(200,
-                activation='relu'))
+# model.add(BatchNormalization(axis=1))
+# model.add(Dense(200,
+#                 activation='relu'))
 # model.add(Dropout(0.5))
 
+# model.add(BatchNormalization(axis=1))
 model.add(Dense(numClass, activation='softmax'))
 
 # model.add(Conv2D(numFilt, (convSize, convSize), padding='same',
@@ -196,7 +197,8 @@ model.compile(loss='categorical_crossentropy', optimizer='Adam', metrics=['accur
 
 history = model.fit(matrixVec, mappingVec, epochs=15, batch_size=50,
                     validation_split=0.2,
-                    callbacks=[EarlyStopping(monitor='val_loss', patience=5)])
+                    callbacks=[EarlyStopping(monitor='val_loss', patience=5),
+                               EarlyStopping(monitor='val_acc', patience=10)])
 score = model.evaluate(matrixVec, mappingVec, batch_size=50)
 
 
@@ -205,23 +207,24 @@ plot_model(model, to_file='model.png', show_shapes=True)
 
 
 plt.subplot(211)
-plt.plot(history.history['acc'][1:])
-plt.plot(history.history['val_acc'][1:])
+plt.plot(history.history['acc'])
+plt.plot(history.history['val_acc'])
 plt.title('model accuracy/loss')
 plt.ylabel('accuracy')
 # plt.xlabel('epoch')
 # plt.legend(['train', 'test'], loc='upper left')
-plt.legend(['train', 'test'], loc='lower right')
+plt.legend(['train', 'validation'], loc='lower right')
 
 # summarize history for loss
 plt.subplot(212)
-plt.plot(history.history['loss'][1:])
-plt.plot(history.history['val_loss'][1:])
+plt.plot(history.history['loss'])
+plt.plot(history.history['val_loss'])
 # plt.title('model loss')
 plt.ylabel('loss')
 plt.xlabel('epoch')
-plt.legend(['train', 'test'], loc='upper right')
-plt.savefig('plot.png', fmt='png')
+plt.legend(['train', 'validation'], loc='upper right')
+# plt.savefig('plot.png', fmt='png')
+plt.savefig('plot2.png', fmt='png')
 # plt.show()
 plt.clf()
 
