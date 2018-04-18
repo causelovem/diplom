@@ -1,0 +1,9 @@
+# @ job_type = bluegene
+# @ class = n256_m5
+# @ output = $(jobid).out
+# @ error = $(jobid).err
+# @ wall_clock_limit = 00:05:00
+# @ bg_size = 256
+# @ queue
+
+/bgsys/drivers/ppcfloor/bin/mpirun -np 256 -mapfile mmm /bigfs/homes_edu/edu-cmc-sqi18-423/edu-cmc-sqi18-423-03/diplom/bin/prog_test_bg_no_trace mas1 mas2 mas3
