@@ -11,6 +11,7 @@ import math
 # from keras.optimizers import SGD
 # from keras.utils import plot_model, normalize
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 # from keras.regularizers import l2
 
 np.set_printoptions(threshold=np.nan)
@@ -68,6 +69,10 @@ for file in matrixFiles:
             newStr.append(sum)
         sque.append(newStr)
 
+    aa = np.array(sque)
+    plt.imshow(aa)
+    plt.colorbar()
+    plt.show()
     for i in range(quan):
         size = quan
         while size > 1:
